@@ -1,0 +1,113 @@
+<head>
+  <title>vidyamandir</title>
+</head>
+
+<body>
+  {{> topbar}}
+  {{> main}}
+</body>
+
+<template name="topbar">
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <a class="brand" href="/home" title="Vidyamandir Classes">Vidyamandir</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <li class="active">
+              <a href="#">Students</a>
+            </li>
+            <li><a href="#">Fee Collections</a></li>
+            <li><a href="#">Couriers</a></li>
+          </ul>
+          {{> loginform}}
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="loginform">
+  <form action="/login" class="navbar-form pull-right">
+    <input type="text" class="span2" placeholder="User">
+    <input type="password" class="span2" placeholder="Password">
+    <input type="submit" class="btn btn-info" value="Login">
+  </form>
+</template>
+
+<template name="main">
+  <div class="container">
+    <div class="row">
+      <div class="span2">
+        {{> savedviews}}
+      </div>
+      <div class="span8">
+        <div class="well" id="searchbar">
+          <div class="row">
+            <div class="input-prepend span7">
+              {{> filtermenu}}
+              {{> studentsearch}}
+            </div>
+            <div class="">
+              {{> saveasmenu}}
+            </div>
+          </div>
+        </div>
+        <table class="table table-striped table-bordered">
+          <tbody>
+            <tr><td>{{> studentrow}}</td></tr>
+            <tr><td>{{> studentrow}}</td></tr>
+            <tr><td>{{> studentrow}}</td></tr>
+            <tr><td>{{> studentrow}}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="studentrow">
+Anup Bishnoi<br><br>Anana
+</template>
+
+<template name="savedviews">
+  <h3 id="savedviews">Saved Views</h3>
+  <hr>
+</template>
+
+<template name="studentsearch">
+  <input id="studentsearch" class="span6" type="text" placeholder="Student">
+</template>
+
+<template name="filtermenu">
+  <span class="dropdown" id="filtermenu">
+    <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" data-target="#filtermenu">
+      Only
+      <i class="caret"></i>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a>Students</a></li>
+      <li><a>Teachers</a></li>
+      <li class="divider"></li>
+      <li><a>More</a></li>
+    </ul>
+  </span>
+</template>
+
+<template name="saveasmenu">
+  <span class="dropdown pull-right" id="saveasmenu">
+    <a class="btn btn btn-warning dropdown-toggle" data-toggle="dropdown" data-target="#saveasmenu">
+      <i class="caret"></i>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a>Excel</a></li>
+      <li><a>PDF</a></li>
+      <li class="divider"></li>
+      <li><a href="#">More</a></li>
+    </ul>
+  </span>
+</template>
