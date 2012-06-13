@@ -1,1 +1,2 @@
-Template.searchinput.events
+#Template.search_for.events =
+  #"click .type": ""

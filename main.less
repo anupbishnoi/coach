@@ -1,19 +1,32 @@
-#searchbar {
-  padding-top: 25px;
+@search_bar_top: 28px;
+
+#search_bar {
+  padding-top: @search_bar_top;
+}
+
+.sidebar {
+  margin-top: @search_bar_top + 9px;
+  /*margin-top: 101px;*/
+}
+
+#look_in {
+  text-align: left;
+  .sidebar()
+}
+
+#search_for {
+  /*text-align: right;*/
+  .sidebar()
 }
 
 body {
   padding-top: 35px;
 }
 
-#filtermenu {
+#filter_menu {
   
 }
 
-#searchinput {
+#search_input {
   margin-bottom: 0px;
-}
-
-#savedviews {
-  margin-top: 49px;
 }

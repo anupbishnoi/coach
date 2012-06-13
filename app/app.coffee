@@ -1,56 +1,81 @@
-App = (->
+App = {}
 
-  session_variables =
-    resultsview:
-      name: "Results View"
-      type:
-        center_manager:
-          access: "accessobj"
-    searchfor:
-      name: "Search For"
-      type:
-        student:
-          query: (argobj)->
-            Person.find student: $exists: false
-    searchquery:
-      name: "Search Query"
+App.collection_ids = [
+  "org"
+  "center"
+  "batch"
+  "group"
+  "room"
+  "day_type"
+  "duty_type"
 
-  makeAppSessionHelper = (property)->
-    ensure "non_empty_string", property
-    sessionvar = session_variables[property]
-    assert sessionvar, "'#{property}' is not a valid session variable"
-    (v)->
-      ensure "string_if_defined", v
-      if v
-        if sessionvar.type
-          assert sessionvar.type[v], "'#{v}' is not a valid type of #{property}"
-        Session.set(sessionvar.name, v)
-      else
-        Session.get sessionvar.name
+  "subject"
+  "topic"
+  "question"
+  "solution"
+  "question_paper"
+  "admission_test"
+  "study_material_type"
+  "study_material"
+  "study_material_to_distribute"
 
-  {
-    session: (->
-      app_session = {}
-      for own k, v of session_variables
-        app_session[k] = makeAppSessionHelper k
-      app_session
-    )()
+  "person"
+  "center_head"
+  "vendor"
+  "center_staff"
+  "center_coordinator"
+  "center_coordinator_duty"
+  "teacher"
+  "in_out"
+  "applicant"
+  "applicant_discount"
+  "applicant_receipt"
+  "student"
+  "student_receipt"
+  "student_discount"
+  "accrual"
+  "refund"
 
-    searchfor: (searchfor, argobj)->
-      assert.stack.push "App.searchfor"
-      argobj = defaults argobj,
-          resultsview: (get App.session.resultsview)
-      {resultsview, searchquery} = argobj
+  "class"
+  "absent"
+]
 
-      ensure "non_empty_string", searchfor
-      ensure "string", resultsview
-      ensure "string_if_defined", searchquery
+[ 
+  Org
+  Center
+  Batch
+  Group
+  Room
+  DayType
+  DutyType
 
-      assert session_variables.resultsview.type[resultsview],
-        "'#{resultsview}' is not a valid view type"
-      assert session_variables.searchfor.type[searchfor],
-        "'#{searchfor}' is not a valid searchfor type"
+  Subject
+  Topic
+  Question
+  Solution
+  QuestionPaper
+  AdmissionTest
+  StudyMaterialType
+  StudyMaterial
+  StudyMaterialToDistribute
 
-      session_variables.searchfor.type[searchfor].query(argobj)
-  }
-)()
+  Person
+  CenterHead
+  Vendor
+  CenterStaff
+  CenterCoordinator
+  CenterCoordinatorDuty
+  Teacher
+  InOut
+  Applicant
+  ApplicantDiscount
+  ApplicantReceipt
+  Student
+  StudentReceipt
+  StudentDiscount
+  Accrual
+  Refund
+
+  Class
+  Absent
+] = (new Meteor.Collection(id) for id in App.collection_ids)

@@ -3,7 +3,7 @@
 </head>
 
 <body>
-  {{> topbar}}
+  {{> top_bar}}
   {{> main}}
 </body>
 
@@ -11,41 +11,53 @@
   <div class="container">
     <div class="row">
       <div class="span2">
-        {{> savedviews}}
+        {{> look_in}}
       </div>
       <div class="span8">
-        <div class="well" id="searchbar">
+        <div class="well" id="search_bar">
           <div class="row">
-            <div class="input-prepend span7">
-              {{> filtermenu}}
-              {{> searchinput}}
+            <div class="input-prepend input-append span7">
+              {{> filter_menu}}
+              {{> search_input}}
+              {{> save_button}}
             </div>
             <div class="">
-              {{> saveasmenu}}
+              {{> save_as_menu}}
             </div>
           </div>
         </div>
-        {{> resultlist}}
+        {{> result_list}}
+      </div>
+      <div class="span2">
+        {{> search_for}}
       </div>
     </div>
   </div>
 </template>
 
-<template name="resultlist">
-  <table class="table table-striped table-bordered">
-    <tbody>
-      {{#each resultitems}}
-      <tr>
-        <td>
-          <h4>{{name}}</h4>
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+<template name="save_button">
+  <span class="btn btn-small btn-info">
+    <i class="icon-plus-sign"></i>
+  </span>
 </template>
 
-<template name="topbar">
+<template name="result_list">
+  {{#if has_items}}
+    <table class="table table-striped table-bordered">
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td>
+            <h4>{{doc_name}}</h4>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{/if}}
+</template>
+
+<template name="top_bar">
   <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
@@ -58,19 +70,19 @@
         <div class="nav-collapse">
           <ul class="nav">
             <li class="active">
-              <a href="#">Students</a>
+              <a href="#">Search</a>
             </li>
             <li><a href="#">Fee Collections</a></li>
             <li><a href="#">Couriers</a></li>
           </ul>
-          {{> loginform}}
+          {{> login_form}}
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<template name="loginform">
+<template name="login_form">
   <form action="/login" class="navbar-form pull-right">
     <input type="text" class="span2" placeholder="User">
     <input type="password" class="span2" placeholder="Password">
@@ -78,34 +90,73 @@
   </form>
 </template>
 
-<template name="savedviews">
-  <h3 id="savedviews">Saved Views</h3>
-  <hr>
+<template name="search_for">
+  <div id="search_for">
+    <h3>Search For</h3>
+    <hr>
+    <ul class="nav nav-tabs nav-stacked">
+      {{#each items}}
+        <li class="{{active}}">
+          <a class="type" href="#search_for/{{type_id}}">
+            {{type_name}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
 </template>
 
-<template name="searchinput">
-<input id="searchinput" class="span6" type="text" placeholder="{{placeholder}}">
+<template name="look_in">
+  <div id="look_in">
+    {{#if has_look_ins}}
+      <h3>Look in</h3>
+      <hr>
+      <ul class="nav nav-pills nav-stacked">
+        {{#each look_ins_selected}}
+          <li class="active">
+            <a class="selected" href="#">
+              {{doc_name}}
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+      <hr>
+      <ul class="nav nav-pills nav-stacked">
+        {{#each look_in_options}}
+          <li class="{{active}}">
+            <a class="option" href="#">
+              {{doc_name}}
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
+  </div>
 </template>
 
-<template name="filtermenu">
-  <span class="dropdown" id="filtermenu">
-    <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" data-target="#filtermenu">
+<template name="search_input">
+  <input id="search_input" class="span6" type="text" placeholder="{{placeholder}}">
+</template>
+
+<template name="filter_menu">
+  <span class="dropdown" id="filter_menu">
+    <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" data-target="#filter_menu">
       Only
       <i class="caret"></i>
     </a>
     <ul class="dropdown-menu">
-      <li><a>Students</a></li>
-      <li><a>Teachers</a></li>
+      <li><a>Active Students</a></li>
+      <li><a>Inactive Students</a></li>
       <li class="divider"></li>
       <li><a>More</a></li>
     </ul>
   </span>
 </template>
 
-<template name="saveasmenu">
-  <span class="dropdown pull-right" id="saveasmenu">
-    <a class="btn btn btn-warning dropdown-toggle" data-toggle="dropdown" data-target="#saveasmenu">
-      <i class="caret"></i>
+<template name="save_as_menu">
+  <span class="dropdown pull-right" id="save_as_menu">
+    <a class="btn btn-small btn-warning dropdown-toggle" data-toggle="dropdown" data-target="#save_as_menu">
+      <i class="icon-share"></i>
     </a>
     <ul class="dropdown-menu">
       <li><a>Excel</a></li>

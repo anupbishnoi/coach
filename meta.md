@@ -104,6 +104,13 @@ Code Structure
 * _searchquery_  
   Query in the search input box
 
+## Flow
+
+Router only changes session variables
+Template picks up on those changes and re-renders
+Mongo observe's also pick up on them and manage ui hooks
+on the renderer templates
+
 
 * * *
 [app]: #app "App Code"
