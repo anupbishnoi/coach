@@ -1,2 +1,3 @@
-#Template.search_for.events =
-  #"click .type": ""
+#Template.look_in_selected.events =
+  #".selected": (e)->
+    

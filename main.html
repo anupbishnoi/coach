@@ -42,10 +42,10 @@
 </template>
 
 <template name="result_list">
-  {{#if has_items}}
+  {{#if any}}
     <table class="table table-striped table-bordered">
       <tbody>
-        {{#each items}}
+        {{#each item}}
         <tr>
           <td>
             <h4>{{doc_name}}</h4>
@@ -95,9 +95,9 @@
     <h3>Search For</h3>
     <hr>
     <ul class="nav nav-tabs nav-stacked">
-      {{#each items}}
-        <li class="{{active}}">
-          <a class="type" href="#search_for/{{type_id}}">
+      {{#each item}}
+        <li class="{{ui_active}}">
+          <a class="item" href="#search_for/{{type_id}}">
             {{type_name}}
           </a>
         </li>
@@ -108,30 +108,42 @@
 
 <template name="look_in">
   <div id="look_in">
-    {{#if has_look_ins}}
-      <h3>Look in</h3>
-      <hr>
-      <ul class="nav nav-pills nav-stacked">
-        {{#each look_ins_selected}}
-          <li class="active">
-            <a class="selected" href="#">
-              {{doc_name}}
-            </a>
-          </li>
-        {{/each}}
-      </ul>
-      <hr>
-      <ul class="nav nav-pills nav-stacked">
-        {{#each look_in_options}}
-          <li class="{{active}}">
-            <a class="option" href="#">
-              {{doc_name}}
-            </a>
-          </li>
-        {{/each}}
-      </ul>
+    <h3>Look in</h3>
+    {{#if any}}
+      {{> look_in_selected}}
+      {{> look_in_options}}
     {{/if}}
   </div>
+</template>
+
+<template name="look_in_selected">
+  {{#if any}}
+    <hr>
+    <ul class="nav nav-tabs nav-stacked">
+      {{#each selected}}
+        <li>
+          <a class="selected" href="#look_in/{{doc_link}}">
+            {{doc_name}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</template>
+
+<template name="look_in_options">
+  {{#if any}}
+    <hr>
+    <ul class="nav nav-pills nav-stacked">
+      {{#each option}}
+        <li>
+          <a class="option" href="#look_in/{{doc_link}}">
+            {{doc_name}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
 </template>
 
 <template name="search_input">

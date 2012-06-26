@@ -44,6 +44,7 @@ refreshMain = ->
     doc_type: "batch"
     id: "12p2005"
 
+    center: [pp.doc_id]
     doc_name: "XIIth Pass 2005"
     duration: "1 year"
     fee: 125000
