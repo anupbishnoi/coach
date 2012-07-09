@@ -1,7 +1,7 @@
 @search_bar_top: 28px;
 
-#search_bar {
-  padding-top: @search_bar_top;
+body {
+  padding-top: 35px;
 }
 
 .sidebar {
@@ -9,24 +9,39 @@
   /*margin-top: 101px;*/
 }
 
-#look_in {
-  text-align: left;
-  .sidebar()
-}
+#main {
+  #search_bar {
+    padding-top: @search_bar_top;
+  }
 
-#search_for {
-  /*text-align: right;*/
-  .sidebar()
-}
+  #look_in {
+    .sidebar()
+  }
 
-body {
-  padding-top: 35px;
-}
+  #search_for {
+    .sidebar()
+  }
 
-#filter_menu {
-  
-}
+  #filter_menu {
+    
+  }
 
-#search_input {
-  margin-bottom: 0px;
+  #search_input {
+    margin-bottom: 0px;
+  }
+
+  #result_list {
+    .actions {
+      float: right;
+      margin-left: 20px;
+    }
+    .information {
+      float: right;
+      .field {
+        color: gray;
+      }
+      .value {
+      }
+    }
+  }
 }

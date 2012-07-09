@@ -1,81 +1,132 @@
-App = {}
+(->
+  App.collection.add [
+    "doc_type"
 
-App.collection_ids = [
-  "org"
-  "center"
-  "batch"
-  "group"
-  "room"
-  "day_type"
-  "duty_type"
+    "org"
+    "center"
+    "batch"
+    "due_installment"
+    "group"
+    "room"
+    "subject"
+    "topic"
+    "study_material_type"
+    "study_material"
 
-  "subject"
-  "topic"
-  "question"
-  "solution"
-  "question_paper"
-  "admission_test"
-  "study_material_type"
-  "study_material"
-  "study_material_to_distribute"
+    "person"
+    "center_head"
+    "vendor"
+    "center_staff"
+    "center_staff_in_out"
+    "center_coordinator"
+    "teacher"
+    "applicant"
+    "applicant_discount"
+    "applicant_receipt"
+    "student"
+    "student_discount"
+    "student_receipt"
+    "accrual"
+    "refund"
 
-  "person"
-  "center_head"
-  "vendor"
-  "center_staff"
-  "center_coordinator"
-  "center_coordinator_duty"
-  "teacher"
-  "in_out"
-  "applicant"
-  "applicant_discount"
-  "applicant_receipt"
-  "student"
-  "student_receipt"
-  "student_discount"
-  "accrual"
-  "refund"
+    "question"
+    "solution"
+    "question_paper"
+    "admission_test"
 
-  "class"
-  "absent"
-]
+    "study_class"
+    "absent"
 
-[ 
-  Org
-  Center
-  Batch
-  Group
-  Room
-  DayType
-  DutyType
+    "duty_type"
+    "center_coordinator_duty"
+  ]
 
-  Subject
-  Topic
-  Question
-  Solution
-  QuestionPaper
-  AdmissionTest
-  StudyMaterialType
-  StudyMaterial
-  StudyMaterialToDistribute
+  App.docIdfy.addParent
+    "center": "org"
+    "batch": "org"
+    "due_installment": "batch"
+    "group": ["center", "batch"]
+    "room": "center"
+    "subject": "org"
+    "topic": "subject"
+    "study_material_type": "org"
+    "study_material": [
+      "batch"
+      "subject"
+      "study_material_type"
+    ]
+    "center_head": "center"
+    "vendor": "org"
+    "center_staff": "center"
+    "center_staff_in_out": "center_staff"
+    "center_coordinator": "center"
+    "teacher": "org"
+    "applicant": "admission_test"
+    "applicant_discount": "applicant"
+    "applicant_receipt": "applicant"
+    "student": "org"
+    "student_discount": "student"
+    "student_receipt": "student"
+    "accrual": "student"
+    "refund": "student"
+    "question": ["subject", "teacher"]
+    "question_paper": "teacher"
+    "admission_test": "batch"
+    "study_class": ["group", "topic"]
+    "absent": "study_class"
+    "duty_type": "org"
+    "center_coordinator_duty": ["center_coordinator", "duty_type"]
 
-  Person
-  CenterHead
-  Vendor
-  CenterStaff
-  CenterCoordinator
-  CenterCoordinatorDuty
-  Teacher
-  InOut
-  Applicant
-  ApplicantDiscount
-  ApplicantReceipt
-  Student
-  StudentReceipt
-  StudentDiscount
-  Accrual
-  Refund
+  App.find.addDefaults (_.difference App.collection.list(), [
+    "doc_type"
+    "org"
+    "person"
+  ]), App.docIdfy org: App.org
 
-  Class
-  Absent
-] = (new Meteor.Collection(id) for id in App.collection_ids)
+  App.find.addDefaults (_.difference App.collection.list(), [
+    "doc_type"
+    "person"
+    "center_staff_in_out"
+    "applicant_discount"
+    "applicant_receipt"
+    "student_discount"
+    "student_receipt"
+    "accrual"
+    "refund"
+    "absent"
+  ]), active: true
+
+  App.get.addField "doc_type",
+    doc_name: (doc)-> _.printable doc.doc_id
+
+  App.get.addField "student",
+    due_installment: (doc)->
+      receipts = App.find "student_receipt", student: doc.doc_id
+      dues = App.find "due_installment", batch: doc.batch
+      if _.isEmpty dues
+        due = 0
+      else if _.isEmpty receipts
+        ensure "exists", dues[0].amount
+        due = dues[0].amount
+      else
+        ensure "exists", d.amount for d in dues
+        ensure "exists", r.amount for r in receipts
+        due = (_.sum _.pluck dues, "amount") -
+              (_.sum _.pluck receipts, "amount")
+      due > 0 and due
+    last_paid_on: (doc)->
+      receipt = App.find.one "student_receipt",
+        {student: doc.doc_id},
+        {sort: on: 1}
+      receipt and receipt.on and _.date new Date(receipt.on)
+
+  App.get.addAlternate [
+      "center_head"
+      "vendor"
+      "center_staff"
+      "center_coordinator"
+      "teacher"
+      "student"
+    ], "person"
+
+)()

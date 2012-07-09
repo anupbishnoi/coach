@@ -1,47 +1,56 @@
 refreshMain = ->
-  collection.remove({}) for collection in [
-    Org
-    Center
-    Batch
-    Group
-    Room
-    DayType
-    DutyType
+  App.collection(name).remove({}) for name in [
+    "org"
+    "center"
+    "batch"
+    "due_installment"
+    "group"
+    "room"
 
-    Subject
-    Topic
-    StudyMaterialType
-    StudyMaterial
-    QuestionPaper
-    AdmissionTest
+    "subject"
+    "topic"
+    "study_material_type"
+    "study_material"
   ]
 
-  Org.insert
-    doc_id: "vmc"
+  org = App.find.one "doc_type", doc_id: "org"
+  center = App.find.one "doc_type", doc_id: "center"
+  batch = App.find.one "doc_type", doc_id: "batch"
+  due_installment = App.find.one "doc_type", doc_id: "due_installment"
+  group = App.find.one "doc_type", doc_id: "group"
+  room = App.find.one "doc_type", doc_id: "room"
+  subject = App.find.one "doc_type", doc_id: "subject"
+  topic = App.find.one "doc_type", doc_id: "topic"
+  study_material_type = App.find.one "doc_type", doc_id: "study_material_type"
+  study_material = App.find.one "doc_type", doc_id: "study_material"
 
+  App.collection("org").insert
+    doc_id: "org/vmc"
+
+    doc_type: org.doc_id
     id: "vmc"
 
     doc_name: "Vidyamandir Classes"
     active: true
-  vmc = Org.findOne doc_id: "vmc"
+  vmc = App.find.one "org", doc_id: "org/vmc"
 
-  Center.insert
-    doc_id: "vmc/center/pp"
+  App.collection("center").insert
+    doc_id: "center/vmc/pp"
 
+    doc_type: center.doc_id
     org: vmc.doc_id
-    doc_type: "center"
     id: "pp"
 
     doc_name: "Pitampura"
     address: "3rd Floor, Aggarwal Corporate Heights, NSP"
     active: true
-  pp = Center.findOne doc_id: "vmc/center/pp"
+  pp = App.find.one "center", doc_id: "center/vmc/pp"
 
-  Batch.insert
-    doc_id: "vmc/batch/12p2005"
+  App.collection("batch").insert
+    doc_id: "batch/vmc/12p2005"
 
+    doc_type: batch.doc_id
     org: vmc.doc_id
-    doc_type: "batch"
     id: "12p2005"
 
     center: [pp.doc_id]
@@ -50,140 +59,125 @@ refreshMain = ->
     fee: 125000
     accrual_per_month: 125000/10 # accrual stops end of march, classes almost over
     active: true
-  xiip05 = Batch.findOne doc_id: "vmc/batch/12p2005"
+  xiip05 = App.find.one "batch", doc_id: "batch/vmc/12p2005"
 
-  Group.insert
-    doc_id: "vmc/group/pp/12p2005/1"
+  App.collection("due_installment").insert
+    doc_id: "due_installment/vmc/12p2005/1"
 
+    doc_type: due_installment.doc_id
     org: vmc.doc_id
-    doc_type: "group"
+    batch: xiip05.doc_id
+    id: "1"
+
+    amount: 110000
+    on: new Date 2004, 11, 31, 18, 0, 0, 0
+    active: true
+  due1 = App.find.one "due_installment", doc_id: "due_installment/vmc/12p2005/1"
+
+  App.collection("due_installment").insert
+    doc_id: "due_installment/vmc/12p2005/2"
+
+    doc_type: due_installment.doc_id
+    org: vmc.doc_id
+    batch: xiip05.doc_id
+    id: "2"
+
+    amount: 15000
+    on: new Date 2005, 2, 31, 18, 0, 0, 0
+    active: true
+  due2 = App.find.one "due_installment", doc_id: "due_installment/vmc/12p2005/2"
+
+  App.collection("group").insert
+    doc_id: "group/vmc/[vmc/pp].[vmc/12p2005]/1"
+
+    doc_type: group.doc_id
+    org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
-    id: 1
+    id: "1"
     
     doc_name: "XIIth Pass 1"
     active: true
-  xiip1 = Group.findOne doc_id: "vmc/group/pp/12p2005/1"
+  xiip1 = App.find.one "group", doc_id: "group/vmc/[vmc/pp].[vmc/12p2005]/1"
 
-  Group.insert
-    doc_id: "vmc/group/pp/12p2005/2"
+  App.collection("group").insert
+    doc_id: "group/vmc/[vmc/pp].[vmc/12p2005]/2"
 
+    doc_type: group.doc_id
     org: vmc.doc_id
-    doc_type: "group"
     center: pp.doc_id
     batch: xiip05.doc_id
-    id: 2
+    id: "2"
     
     doc_name: "XIIth Pass 2"
     active: true
-  xiip2 = Group.findOne doc_id: "vmc/group/pp/12p2005/2"
+  xiip2 = App.find.one "group", doc_id: "group/vmc/[vmc/pp].[vmc/12p2005]/2"
 
-  Room.insert
-    doc_id: "vmc/room/pp/3"
+  App.collection("room").insert
+    doc_id: "room/vmc/pp/3"
     
+    doc_type: room.doc_id
     org: vmc.doc_id
-    doc_type: "room"
     center: pp.doc_id
-    id: 3
+    id: "3"
 
     doc_name: "Room 3"
     capacity: 45
     floor: "3rd Floor"
     active: true
-  room = Room.findOne doc_id: "vmc/room/pp/3"
+  room = App.find.one "room", doc_id: "room/vmc/pp/3"
 
-  DayType.insert
-    doc_id: "vmc/day_type/working_day"
+  App.collection("subject").insert
+    doc_id: "subject/vmc/physics"
 
+    doc_type: subject.doc_id
     org: vmc.doc_id
-    doc_type: "day_type"
-    id: "working_day"
-
-    doc_name: "Working Day"
-    description: "Non-holiday working days for Vidyamandir Classes"
-    #todo: describe/list the holidays
-  working_day = DayType.findOne
-    doc_id: "vmc/day_type/working_day"
-
-  Subject.insert
-    doc_id: "vmc/subject/physics"
-
-    org: vmc.doc_id
-    doc_type: "subject"
     id: "physics"
 
     doc_name: "Physics"
     public: true
-  physics = Subject.findOne doc_id: "vmc/subject/physics"
+    active: true
+  physics = App.find.one "subject", doc_id: "subject/vmc/physics"
 
-  Topic.insert
-    doc_id: "vmc/topic/physics/force_and_momentum"
+  App.collection("topic").insert
+    doc_id: "topic/vmc/physics/force_and_momentum"
 
+    doc_type: topic.doc_id
     org: vmc.doc_id
-    doc_type: "topic"
     subject: physics.doc_id
     id: "force_and_momentum"
 
     doc_name: "Force and Momentum"
     level: "advanced" # could make a TopicLevel object
     public: true
-  topic = Topic.findOne doc_id: "vmc/topic/physics/force_and_momentum"
+    active: true
+  f_and_m = App.find.one "topic", doc_id: "topic/vmc/physics/force_and_momentum"
 
-  StudyMaterialType.insert
-    doc_id: "vmc/study_material_type/module"
+  App.collection("study_material_type").insert
+    doc_id: "study_material_type/vmc/module"
 
+    doc_type: study_material_type.doc_id
     org: vmc.doc_id
-    doc_type: "study_material_type"
     id: "module"
 
     doc_name: "Module"
-  module_type = StudyMaterialType.findOne
-    doc_id: "vmc/study_material_type/module"
+    active: true
+  module = App.find.one "study_material_type",
+    doc_id: "study_material_type/vmc/module"
 
-  StudyMaterial.insert
-    doc_id: "vmc/study_material/12p2005/physics/module/1"
+  App.collection("study_material").insert
+    doc_id: "study_material/vmc/[vmc/12p2005].[vmc/physics].[vmc/module]/1"
 
+    doc_type: study_material.doc_id
     org: vmc.doc_id
-    doc_type: "study_material"
     batch: xiip05.doc_id
     subject: physics.doc_id
-    type: module_type.doc_id
-    id: 1
+    type: module.doc_id
+    id: "1"
 
     doc_name: "Physics - Module 1"
-    contents: [ topic.doc_id ]
+    contents: [ f_and_m.doc_id ]
     scanned: []
-  physics_module = StudyMaterial.findOne
-    doc_id: "vmc/study_material/12p2005/physics/module/1"
-
-  QuestionPaper.insert
-    doc_id: "vmc/question_paper/pp/359"
-
-    org: vmc.doc_id
-    doc_type: "question_paper"
-    center: pp.doc_id
-    id: 359
-
-    questions: []
-  question_paper = QuestionPaper.findOne
-    doc_id: "vmc/question_paper/pp/359"
-
-  AdmissionTest.insert
-    doc_id: "vmc/admission_test/12p2005/1"
-
-    org: vmc.doc_id
-    doc_type: "admission_test"
-    batch: xiip05.doc_id
-    id: 1
-
-    doc_name: "Vidyamandir XIIth Pass Admission Test for IITJEE - 2005"
-    on: "29 February 2004"
-    from: "3:00 PM"
-    to: "6:00 PM"
-    duration: "3 hours"
-    sections: [] # marking scheme and total marks are part of sections
-    instructions: []
-    styling: {}
-    question_paper: question_paper.doc_id
-  admtest = AdmissionTest.findOne doc_id: "vmc/admission_test/12p2005/1"
-
+    active: true
+  physics_module = App.find.one "study_material",
+    doc_id: "study_material/vmc/[vmc/12p2005].[vmc/physics].[vmc/module]/1"

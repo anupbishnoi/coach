@@ -1,71 +1,106 @@
 refreshDuties = ->
-  collection.remove({}) for collection in [
-    CenterCoordinatorDuty
+  App.collection(name).remove({}) for name in [
+    "duty_type"
+    "center_coordinator_duty"
   ]
 
-  vmc = Org.findOne doc_id: "vmc"
-  pp = Center.findOne doc_id: "vmc/center/pp"
-  xiip05 = Batch.findOne doc_id: "vmc/batch/12p2005"
-  xiip1 = Group.findOne doc_id: "vmc/group/pp/12p2005/1"
-  class1 = Class.findOne
-      doc_id: "vmc/class/pp/12p2005/1/physics/force_and_momentum/1"
-  sujeet_coordinator = CenterCoordinator.findOne doc_id: "vmc/center_coordinator/pp/2"
-  anirudh_teacher = Teacher.findOne doc_id: "vmc/teacher/pp/physics/1"
-  physics_module = StudyMaterial.findOne
-    doc_id: "vmc/study_material/12p2005/physics/module/1"
-  psingh_vendor = Vendor.findOne doc_id: "vmc/vendor/1"
+  duty_type = App.find.one "doc_type", doc_id: "duty_type"
+  center_coordinator_duty = App.find.one "doc_type", doc_id: "center_coordinator_duty"
+  vmc = App.find.one "org", doc_id: "org/vmc"
+  pp = App.find.one "center", doc_id: "center/vmc/pp"
+  xiip05 = App.find.one "batch", doc_id: "batch/vmc/12p2005"
+  xiip1 = App.find.one "group", doc_id: "group/vmc/[vmc/pp].[vmc/12p2005]/1"
+  class1 = App.find.one "study_class",
+      doc_id: "study_class/vmc/[vmc/[vmc/pp].[vmc/12p2005]/1].[vmc/physics/force_and_momentum]/1"
+      
+  sujeet_coordinator = App.find.one "center_coordinator", doc_id: "center_coordinator/vmc/pp/2"
+  anirudh_teacher = App.find.one "teacher", doc_id: "teacher/vmc/1"
+  physics_module = App.find.one "study_material",
+    doc_id: "study_material/vmc/[vmc/12p2005].[vmc/physics].[vmc/module]/1"
+  psingh_vendor = App.find.one "vendor", doc_id: "vendor/vmc/1"
 
-  CenterCoordinatorDuty.insert
-    doc_id: "vmc/center_coordinator_duty/pp/2/print/1"
+  App.collection("duty_type").insert
+    doc_id: "duty_type/vmc/print"
 
+    doc_type: duty_type.doc_id
     org: vmc.doc_id
-    doc_type: "center_coordinator_duty"
+    id: "print"
+    active: true
+  print = App.find.one "duty_type", doc_id: "duty_type/vmc/print"
+
+  App.collection("duty_type").insert
+    doc_id: "duty_type/vmc/arrange"
+
+    doc_type: duty_type.doc_id
+    org: vmc.doc_id
+    id: "arrange"
+    active: true
+  arrange = App.find.one "duty_type", doc_id: "duty_type/vmc/arrange"
+
+  App.collection("duty_type").insert
+    doc_id: "duty_type/vmc/distribute"
+
+    doc_type: duty_type.doc_id
+    org: vmc.doc_id
+    id: "distribute"
+    active: true
+  distribute = App.find.one "duty_type", doc_id: "duty_type/vmc/distribute"
+
+  App.collection("center_coordinator_duty").insert
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/print]/1"
+
+    doc_type: center_coordinator_duty.doc_id
+    org: vmc.doc_id
+    center: pp.doc_id
     center_coordinator: sujeet_coordinator.doc_id
-    duty_type: "print"
-    id: 1
+    duty_type: print.doc_id
+    id: "1"
 
     doc_name: "Print Attendance List for XIIth Pass 1 (Room 3)"
     on: class1.from
     done: false
-  duty_print = CenterCoordinatorDuty.findOne
-    doc_id: "vmc/center_coordinator_duty/pp/2/print/1"
+    active: true
+  duty_print = App.find.one "center_coordinator_duty",
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/print]/1"
 
   # one time duty
-  CenterCoordinatorDuty.insert
-    doc_id: "vmc/center_coordinator_duty/pp/2/arrange/2"
+  App.collection("center_coordinator_duty").insert
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/arrange]/2"
 
+    doc_type: center_coordinator_duty.doc_id
     org: vmc.doc_id
-    doc_type: "center_coordinator_duty"
+    center: pp.doc_id
     center_coordinator: sujeet_coordinator.doc_id
-    duty_type: "arrange"
-    id: 2
+    duty_type: arrange.doc_id
+    id: "2"
 
     doc_name: "Arrange 23 copies of Physics Module 1 (2005)"
     on: class1.from
-    class: class1.doc_id
+    study_class: class1.doc_id
     group: xiip1.doc_id
     room: class1.room
     vendor: psingh_vendor.doc_id
     done: false
-  duty_arrange = CenterCoordinatorDuty.findOne
-    doc_id: "vmc/center_coordinator_duty/pp/2/arrange/2"
+    active: true
+  duty_arrange = App.find.one "center_coordinator_duty",
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/arrange]/2"
 
-  CenterCoordinatorDuty.insert
-    doc_id: "vmc/center_coordinator_duty/pp/2/distribute/pp/12p2005/1/12p2005/physics/module/1"
+  App.collection("center_coordinator_duty").insert
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/distribute]/1"
 
+    doc_type: center_coordinator_duty.doc_id
     org: vmc.doc_id
-    doc_type: "center_coordinator_duty"
+    center: pp.doc_id
     center_coordinator: sujeet_coordinator.doc_id
-    duty_type: "distribute"
-    group: xiip1.doc_id
-    study_material: physics_module.doc_id
+    duty_type: distribute.doc_id
+    id: "1"
 
     doc_name: "Distribute Physics Module 1 (2005) in XIIth Pass 1 on 20 May 2004, 3:30 PM"
-    class: class1.doc_id
+    study_material: physics_module.doc_id
+    group: xiip1.doc_id
+    study_class: class1.doc_id
     on: class1.from
-    center: pp.doc_id
-    batch: xiip05.doc_id
     done: false
-  duty_distribute = CenterCoordinatorDuty.findOne
-    doc_id: "vmc/center_coordinator_duty/pp/2/distribute/pp/12p2005/1/12p2005/physics/module/1"
-
+    active: true
+  duty_distribute = App.find.one "center_coordinator_duty",
+    doc_id: "center_coordinator_duty/[vmc/pp/2].[vmc/distribute]/1"

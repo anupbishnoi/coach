@@ -1,4 +1,1 @@
-Meteor.subscribe "student"
-Meteor.subscribe "center"
-Meteor.subscribe "batch"
-Meteor.subscribe "group"
+Meteor.subscribe name for name in App.collection.list()

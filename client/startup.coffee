@@ -15,7 +15,8 @@ AppRouter = Backbone.Router.extend
     App.session "search_for", entity
   look_in: (cbg)->
     seq = ["center", "batch", "group"]
-    selector = App.docIdfy _.objectify seq, cbg.split "/"
+    obj = _.objectify seq, (cbg.split "/"), "non_empty_string", true
+    selector = App.docIdfy obj
     App.session "look_in", selector
 
 Meteor.startup ->
