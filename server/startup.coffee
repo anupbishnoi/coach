@@ -7,5 +7,5 @@ refreshDb = ->
   refreshDuties()
 
 Meteor.startup ->
-  #if App.find.count("org") is 0
+  if App.find.count("org") is 0
     refreshDb()
