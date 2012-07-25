@@ -12,23 +12,21 @@
     routes:
       "navigate/*query": "navigate"
     navigate: (query)->
-      parts = query.split "&"
-      combined = _.flatten _.map parts
-                           , (part)->
-                             [k, v] = part.split "="
-                             [k, v]
-      parsed = _.objectify combined
+      parts = query.split "/"
+      keys = _.filter parts, (part, i)-> i % 2 is 0
+      values = _.filter parts, (part, i)-> i % 2 is 1
+      parsed = _.objectify keys
+               , values
                , "non_empty_string"
                , true
-
-      App.session "search"
-      , look_in: ""
-      , query: ""
-
       $("search_input").val("")
 
       App.session "navigation"
       , parsed
+
+      App.session "search"
+      , look_in: ""
+      , query: ""
 
   Meteor.startup ->
     App.router = new AppRouter()

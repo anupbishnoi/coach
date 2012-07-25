@@ -45,7 +45,7 @@ refreshPersonnel = ->
     id: "1"
 
     doc_name: "Sandeep Mehta"
-    timestamp: new Date 2012, 4, 26, 19, 0, 0, 0
+    timestamp: (new Date 2012, 4, 26, 19, 0, 0, 0).getTime()
     phone: ["+91-9953001820"]
     email: ["sandeep@vidyamandir.com"]
   sandeep_person = App.find.one "person",
@@ -58,7 +58,7 @@ refreshPersonnel = ->
     id: "2"
 
     doc_name: "Pradeep Singh"
-    timestamp: new Date 2012, 4, 26, 19, 5, 0, 0
+    timestamp: (new Date 2012, 4, 26, 19, 5, 0, 0).getTime()
     phone: ["+91-8588801202"]
   psingh_person = App.find.one "person",
     doc_id: "person/2"
@@ -70,7 +70,7 @@ refreshPersonnel = ->
     id: "3"
 
     doc_name: "Sujeet Shivhare"
-    timestamp: new Date 2012, 4, 26, 19, 10, 0, 0
+    timestamp: (new Date 2012, 4, 26, 19, 10, 0, 0).getTime()
     phone: ["+91-8588801214", "+91-9013926056"]
     email: ["sujeet.shivhare@vidyamandir.com"]
   sujeet_person = App.find.one "person",
@@ -83,7 +83,7 @@ refreshPersonnel = ->
     id: "4"
 
     doc_name: "Ajay Pathak"
-    timestamp: new Date 2012, 4, 26, 19, 12, 0, 0
+    timestamp: (new Date 2012, 4, 26, 19, 12, 0, 0).getTime()
     phone: ["+91-8588801213"]
     email: ["pathak@vidyamandir.com"]
   pathak_person = App.find.one "person",
@@ -96,7 +96,7 @@ refreshPersonnel = ->
     id: "5"
 
     doc_name: "Deepak"
-    timestamp: new Date 2012, 4, 26, 19, 15, 0, 0
+    timestamp: (new Date 2012, 4, 26, 19, 15, 0, 0).getTime()
     phone: ["+91-9717556926"]
   deepak_person = App.find.one "person",
     doc_id: "person/5"
@@ -108,7 +108,7 @@ refreshPersonnel = ->
     id: "6"
 
     doc_name: "Divik Jain"
-    timestamp: new Date 2012, 4, 26, 19, 22, 0, 125
+    timestamp: (new Date 2012, 4, 26, 19, 22, 0, 125).getTime()
     phone: ["+91-9582999301"]
     email: ["divik.jain@gmail.com"]
   divik_person = App.find.one "person",
@@ -121,7 +121,7 @@ refreshPersonnel = ->
     id: "7"
 
     doc_name: "Anirudh Mendiratta"
-    timestamp: new Date 2012, 4, 26, 19, 22, 10, 125
+    timestamp: (new Date 2012, 4, 26, 19, 22, 10, 125).getTime()
     phone: ["+91-9818394025"]
     email: ["anirudh@gmail.com"]
   anirudh_person = App.find.one "person",
@@ -134,8 +134,8 @@ refreshPersonnel = ->
     id: "8"
 
     doc_name: "Anup Bishnoi"
-    timestamp: new Date 2012, 4, 26, 19, 20, 0, 125
-    dob: new Date "21 August, 1986"
+    timestamp: (new Date 2012, 4, 26, 19, 20, 0, 125).getTime()
+    dob: (new Date 1986, 7, 21).getTime()
     phone: ["+91-9868768262", "+91-11-27517704"]
     email: [ "pixelsallover@gmail.com"
            , "anup.bishnoi@vidyamandir.com"
@@ -193,8 +193,8 @@ refreshPersonnel = ->
     center_staff: deepak_staff.doc_id
     id: "1"
 
-    in: new Date "26 May 2012, 9:30 AM"
-    out: new Date "26 May 2012, 7:30 PM"
+    in: (new Date 2012, 4, 26, 9, 30).getTime()
+    out: (new Date 2012, 4, 26, 7, 30).getTime()
   in_out1 = App.find.one "center_staff_in_out", doc_id: "in_out/vmc/pp/1/1"
 
   App.collection("center_coordinator").insert
@@ -238,7 +238,7 @@ refreshPersonnel = ->
       admit_card: "attach pdf link"
       center: pp.doc_id
     registration:
-      time: new Date "5 May 2004, 9:00 AM"
+      time: (new Date 2004, 4, 4, 9).getTime()
       center: pp.doc_id # registration center
       slot: "1"
       discount: "20%"
@@ -257,7 +257,7 @@ refreshPersonnel = ->
 
     center: pp.doc_id
     amount: 200
-    on: new Date "20 February 2004, 10:45 AM"
+    on: (new Date 2004, 1, 20, 10, 45).getTime()
     by: sandeep_head.doc_id
     reason: "NTSE Scholar"
     proof: "attach proof"
@@ -276,7 +276,7 @@ refreshPersonnel = ->
 
     center: pp.doc_id
     amount: 500
-    on: new Date "20 February 2004, 11:00 AM"
+    on: (new Date 2004, 1, 20, 11).getTime()
     proof: "scanned photo of receipt (and cheque)"
   adm_receipt = App.find.one "applicant_receipt",
     doc_id: "applicant_receipt/vmc/12p2005/1/pp3010/1"
@@ -307,7 +307,7 @@ refreshPersonnel = ->
     center: pp.doc_id
     batch: xiip05.doc_id
     amount: 10000
-    on: new Date "10 June 2004, 10:00 AM"
+    on: (new Date 2004, 5, 10, 10).getTime()
     by: sandeep_head.doc_id
     reason: "just realised he's awesome. wakau!"
     proof: "attach proof of awesomeness"
@@ -325,13 +325,13 @@ refreshPersonnel = ->
     center: pp.doc_id
     batch: xiip05.doc_id
     amount: 40000
-    on: new Date "5 May 2004, 11:30 AM"
+    on: (new Date 2004, 4, 5, 11, 30).getTime()
     cheque:
       favorof: "Vidyamandir Classes"
       branch: "blah"
       deposited:
         by: deepak_staff.doc_id
-        on: new Date "7 May 2004, 10:00 AM"
+        on: (new Date 2004, 4, 7, 10).getTime()
     proof: "attached scanned link"
   stud_receipt = App.find.one "student_receipt",
     doc_id: "student_receipt/vmc/12p05zz1234/1"
@@ -347,7 +347,7 @@ refreshPersonnel = ->
     center: pp.doc_id
     batch: xiip05.doc_id
     amount: 10212
-    on: new Date "1 June 2004, 10:30 AM"
+    on: (new Date 2004, 5, 1, 10, 30).getTime()
   accr1 = App.find.one "accrual", doc_id: "accrual/vmc/12p05zz1234/1"
 
   App.collection("accrual").insert
@@ -361,7 +361,7 @@ refreshPersonnel = ->
     center: pp.doc_id
     batch: xiip05.doc_id
     amount: 13235
-    on: new Date "1 July 2004, 10:30 AM"
+    on: (new Date 2004, 6, 1, 10, 30).getTime()
   accr2 = App.find.one "accrual", doc_id: "accrual/vmc/12p05zz1234/2"
 
   App.collection("refund").insert
@@ -372,7 +372,7 @@ refreshPersonnel = ->
     student: anup_student.doc_id
     id: "1"
 
-    on: new Date "25 July 2004, 5:00 PM"
+    on: (new Date 2004, 6, 25, 17).getTime()
     by: sandeep_head.doc_id
     amount: 8023
     reason: "Don't like his face"

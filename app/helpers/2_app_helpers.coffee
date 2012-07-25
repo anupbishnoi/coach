@@ -6,12 +6,16 @@ App = {}
     "vmc"
   )()
 
-  App.docIds = (docs, allow_invalid)->
-    inside "App.docIds", arguments
-    ensure "array", docs
+  App.docIds = ->
+    [ docs, allow_invalid ] =
+      _.match arguments
+      , [ "array"
+          "boolean" ]
+      , 1
+      , "App.docIds"
     _.map docs
     , (doc)->
-      if allow_invalid is true
+      if allow_invalid
         doc or= {}
       else
         ensure "object", doc
@@ -36,7 +40,9 @@ App = {}
           (App.find.count name, {doc_id}) isnt 0
 
     fn = (name)->
-      ensure "non_empty_string", name
+      ensure "non_empty_string"
+      , name
+      , "Collection name needs to be a non-empty string"
       ensure "defined", collections[name]
       , "No such collection found: #{name}"
       collections[name]
@@ -56,21 +62,23 @@ App = {}
   App.find = (->
     defaults = {}
 
-    checkSanityIn = (func_identifier, args, allow_invalid)->
-      [func_identifier, args, allow_invalid] =
-        _.args arguments
-        , [ "string", "arguments", "boolean" ]
+    checkSanityIn = ->
+      [ func_identifier, args, allow_invalid ] =
+        _.match arguments
+        , [ "string"
+            "arguments"
+            "boolean" ]
         , 2
         , "App.find#checkSanityIn"
-      [what, selector, options, filter] =
-        _.args args
+        , false
+      [ what, selector, options, filter ] =
+        _.match args
         , [ "non_empty_string"
             "object"
             "object"
             "function" ]
         , 1
         , "App.find#{func_identifier}"
-        , true
       selector or= {}
       options or= {}
       unless allow_invalid
@@ -79,23 +87,23 @@ App = {}
       if its "defined", defaults[what]
         selector = _.defaults (_.clone selector)
                    , defaults[what]
-      [what, selector, options, filter]
+      [ what, selector, options, filter ]
 
-    fn = (what, selector, options)->
-      [what, selector, options] =
-        checkSanityIn "", arguments
+    fn = ->
+      [ what, selector, options ] =
+        checkSanityIn "" , arguments
       App.collection(what)
          .find(selector, options)
          .fetch()
 
     fn.cursor = ->
-      [what, selector, options] =
+      [ what, selector, options ] =
         checkSanityIn ".cursor", arguments
       App.collection(what)
          .find(selector, options)
     
     fn.if = ->
-      [what, selector, options] =
+      [ what, selector, options ] =
         checkSanityIn ".if", arguments, true
       if its "defined", App.collection(what)
         fn what
@@ -105,19 +113,19 @@ App = {}
         []
 
     fn.count = ->
-      [what, selector, options] =
+      [ what, selector, options ] =
         checkSanityIn ".count", arguments
       fn.cursor(what, selector, options)
         .count()
 
     fn.one = ->
-      [what, selector, options] =
+      [ what, selector, options ] =
         checkSanityIn ".one", arguments
       App.collection(what)
          .findOne(selector, options)
 
     fn.filter = ->
-      [what, selector, options, func] =
+      [ what, selector, options, func ] =
         checkSanityIn ".filter", arguments
       ensure "defined", func
       _.filter (fn what
@@ -152,24 +160,25 @@ App = {}
           ensure "array", parent_type
           , "Parent type of #{field} must be either string or array: #{parent_type}"
           ids = _.map parent_type
-                , (coparent)->
-                  "[#{docId coparent, obj}]"
+                , (coparent)-> "[#{docId coparent, obj}]"
           "#{docId "org", obj}/#{ids.join "."}/#{obj[field]}"
 
     fn = (obj)->
-      inside "App.docIdfy", arguments
-      ensure "object", obj
+      [ obj ] = _.match arguments
+                , [ "object" ]
+                , 1
+                , "App.docIdfy"
       selector = _.clone obj
       fasterDocId = _.memoize docId
-      fn.ff = fasterDocId
+
       for own field of selector
         value = fasterDocId field, obj
         if its "non_empty_string", value
           selector[field] = "#{field}/#{value}"
       selector
-    fn.p = parent
+
     fn.addParent = _.keyValueAdder parent
-                   , ["non_empty_string", "array"]
+                   , [ "non_empty_string", "array" ]
                    , "App.docIdfy.addParent"
     fn
   )()
@@ -177,21 +186,25 @@ App = {}
   App.map = (->
     maps = {}
 
-    recurse = (current, doc, initial, index_str)->
-      [current, doc, initial, index_str] =
-        _.args arguments
-        , [ ["string", "object", "array"]
+    recurse = ->
+      [ current, doc, initial, index_str ] =
+        _.match arguments
+        , [ [ "string"
+              "object"
+              "array" ]
             "object"
             "object"
             "string" ]
         , 2
         , "App.map#recurse"
+        , false
       if its "string", current
-        if (_.startsWith current, "#")
+        if (_.startsWith current, "'") and
+           (_.endsWith current, "'")
+          value = current[1...-1]
+        else
           value = App.get current
                   , doc
-        else
-          value = current
       else if its "object", current
         obj = initial or {}
         for own key, spec of current
@@ -202,95 +215,130 @@ App = {}
       else if its "array", current
         value = _.map current
                 , (spec)->
-                  recurse spec
-                  , doc
-                  , index_str
+                    recurse spec
+                    , doc
+                    , index_str
 
-    fn = (docs, index_str, include_original)->
-      inside "App.map", arguments
-      ensure "array", docs
-      ensure "non_empty_string", index_str
+    fn = ->
+      [ docs, index_str, include_original ] =
+        _.match arguments
+        , [ "array"
+            "non_empty_string"
+            "boolean" ]
+        , 2
+        , "App.map"
       ensure "defined", maps[index_str]
       , "No such map found: #{index_str}"
       mapped = _.map docs
       , (doc)->
-        ensure "object", doc
-        if include_original is true
-          recurse maps[index_str]
-          , doc
-          , doc
-          , index_str
-        else
-          recurse maps[index_str]
-          , doc
-          , index_str
-
+          ensure "object", doc
+          if include_original is true
+            recurse maps[index_str]
+            , doc
+            , doc
+            , index_str
+          else
+            recurse maps[index_str]
+            , doc
+            , index_str
       map_funcs = _.filter (_.toArray arguments)[2..]
-      , (func)->
-        its "function", func
-
+                  , (func)-> its "function", func
       _.map mapped
       , (doc)->
-        _.each map_funcs 
-        , (func)->
-          doc = func doc
-        doc
+          _.each map_funcs 
+          , (func)-> doc = func doc
+          doc
 
-    fn.add = _.keyValueAdder maps
-             , [ "string"
-                 "object"
-                 "array" ]
-             , "App.map.add"
-
+    fn.add =
+      _.keyValueAdder maps
+      , [ "non_empty_string"
+          "object"
+          "array" ]
+      , "App.map.addMapper"
     fn
   )()
+
 
   App.get = (->
     alternate = {}
     mapped_fields = {}
 
-    deepValue = (field_str, doc)->
-      _.findValue (field_str.split "/")
-      , doc
-      , (value, field)->
-        App.find.one field, doc_id: value
+    memoized = ->
+      [ calculate, first_value, rest_path, memo ] =
+        _.match arguments
+        , [ "function"
+            "non_empty_string"
+            "array"
+            "object" ]
+        , 2
+        , "App.get#memoized"
+      if rest_path and rest_path.length > 0
+        key = "#{first_value}/#{rest_path.join "/"}"
+        if memo and its "defined", memo[key]
+          memo[key]
+        else
+          v = calculate()
+          memo[key] = v if memo
+          v
+      else
+        calculate()
 
-    fn = (field, doc)->
-      inside "App.get", arguments
-      ensure "non_empty_string", field
-      ensure "object", doc
+    deepValue = ->
+      [ field, doc, memo ] =
+        _.match arguments
+        , [ "string"
+            "object"
+            "object" ]
+        , 2
+        , "App.get#deepValue"
+      path = field.split "/"
+      value_in_doc = doc[path[0]]
+      if its "non_empty_string", value_in_doc
+        findFunc = ->
+          _.findValue path
+          , doc
+          , (value, field)->
+              App.find.one field
+              , doc_id: value
+          , true
+        memoized findFunc
+        , value_in_doc
+        , path[1..]
+        , memo
+
+    fn = ->
+      [ field, doc, memo ] =
+        _.match arguments
+        , [ "non_empty_string"
+            "object"
+            "object" ]
+        , 2
+        , "App.get"
       ensure "non_empty_string", doc.doc_type
-      field = field[1..] if _.startsWith field, "#"
-      order =
-        [ (field, doc)->
-            deepValue field
-            , doc
-        , (field, doc)->
-            alternate_fields = mapped_fields[doc.doc_type]
-            if (its "defined", alternate_fields) and
-               (its "defined", alternate_fields[field])
-              ensure "function", alternate_fields[field]
-              , "App.get.addField for #{doc.doc_type} needs a function for: #{field}"
-              alternate_fields[field](doc)
-        , (field, doc)->
-            alternate_doc_type = alternate[doc.doc_type]
-            if its "defined", alternate_doc_type
-              alternate_doc = App.find.one alternate_doc_type
-                              , doc_id: doc[alternate_doc_type]
-              alternate_doc and deepValue field
-                                , alternate_doc
-        ]
-      for func, i in order
-        v = func field
-            , doc
-        break if its "defined", v
+      , "Doc needs a doc_type: #{json doc}"
+
+      v = deepValue field
+          , doc
+          , memo
+
+      if its.not "defined", v
+        mapped_obj = mapped_fields[doc.doc_type]
+        if mapped_obj and mapped_obj[field]
+          v = mapped_obj[field](doc)
+
+        if its.not "defined", v
+          alternate_doc_type = alternate[doc.doc_type]
+          if alternate_doc_type
+            v = deepValue "#{alternate_doc_type}/#{field}"
+                , doc
+                , memo
       v
 
     fn.addAlternate = _.keyValueAdder alternate
                       , "non_empty_string"
                       , "App.get.addAlternate"
     fn.addField = _.keyValueAdder mapped_fields
-                  , ["string", "object"]
+                  , "object"
                   , "App.get.addField"
     fn
   )()
@@ -298,9 +346,13 @@ App = {}
   App.ui = (->
     funcs = {}
 
-    fn = (index_str, args)->
-      inside "App.ui", arguments
-      ensure "non_empty_string", index_str
+    fn = ->
+      [ index_str, args ] =
+        _.match arguments
+        , [ "non_empty_string"
+            null ]
+        , 1
+        , "App.ui"
       ensure "defined", funcs[index_str]
       , "No saved ui function found for: #{index_str}"
       funcs[index_str] args
@@ -314,32 +366,34 @@ App = {}
   App.filter = (->
     searchables = {}
 
-    fn = (query, func_identifier)->
-      [query, func_identifier] =
-        _.args arguments
-        , ["string", "non_empty_string"]
+    fn = ->
+      [ query, func_identifier ] =
+        _.match arguments
+        , [ "string"
+            "non_empty_string" ]
         , 1
-        , true
-      query_items = _.keywords query
+        , "App.filter"
+      query_items = _.uniq _.keywords query
+      memo = {}
       if query_items.length is 0
         -> true
       else
         (doc)->
           inside "#{func_identifier}#filter", arguments
-          list = searchables[doc.doc_type]
-          ensure "defined", list
-          found = no
-          for field in list
-            value = _.keywords App.get field, doc
-            found = (_.intersect query_items
-                     , value)
-                    .length > 0
-            break if found
-          found
+          list = _.uniq _.flatten _.map searchables[doc.doc_type]
+                                  , (field)->
+                                      _.keywords App.get field
+                                                 , doc
+                                                 , memo
+          found = []
+          for item in query_items
+            if _.include list, item
+              found.push true
+          found.length is query_items.length
 
     fn.addSearchable = _.keyValueAdder searchables
-                        , "array"
-                        , "App.filter.addSearchable"
+                       , "array"
+                       , "App.filter.addSearchable"
     fn
   )()
 

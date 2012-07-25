@@ -70,7 +70,7 @@ refreshMain = ->
     id: "1"
 
     amount: 110000
-    on: new Date 2004, 11, 31, 18, 0, 0, 0
+    on: (new Date 2004, 11, 31, 18).getTime()
     active: true
   due1 = App.find.one "due_installment", doc_id: "due_installment/vmc/12p2005/1"
 
@@ -83,7 +83,7 @@ refreshMain = ->
     id: "2"
 
     amount: 15000
-    on: new Date 2005, 2, 31, 18, 0, 0, 0
+    on: (new Date 2005, 2, 31, 18).getTime()
     active: true
   due2 = App.find.one "due_installment", doc_id: "due_installment/vmc/12p2005/2"
 

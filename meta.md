@@ -1,6 +1,11 @@
 Code Structure
 ==============
 
+## Notes
+  * Only:
+    * Active students / Inactive students
+    * Past classes / Remaining classes
+
 ## App
 
 * _app/_

@@ -29,7 +29,6 @@
         when 13, 32 # Enter/Space
           {look_in, query} = App.session "search"
           query = $(e.currentTarget).val()
-          log {query}
           App.session "search"
           , {look_in, query}
           if e.which is 32
@@ -38,5 +37,9 @@
             false
         else
           true
+
+  Template.search_for.events =
+    "click .item": ->
+      {look_in, query} = App.session "search"
 
 )(_.log, _.json, _.ensure, _.ensure.test, _.ensure.inside, _.ensure.error)

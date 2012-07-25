@@ -18,24 +18,25 @@
 
     keys = []
 
-    fn = (key, value)->
-      inside "App.session", arguments
-      ensure "string", key
-      , "Session variable key must be a string"
+    fn = ->
+      [ key, value ] =
+        _.match arguments
+        , [ "non_empty_string"
+            null ]
+        , 1
+        , "App.session"
 
-      ensure "defined", "session_#{key}"
-      , "Invalid session variable, no such found: #{key}"
-      unless its "defined", value
-        value = Session.get key
-        ensure "session_#{key}", value
-        , "Invalid value stored in session variable '#{key}': #{json value}"
-        value
-      else
+      if its "defined", value
         ensure "session_#{key}", value
         , "Invalid value specified for '#{key}': #{json value}" +
           "\nShould have been of type: session_#{key}"
         keys.push key
         Session.set key, value
+      else
+        value = Session.get key
+        ensure "session_#{key}", value
+        , "Invalid value stored in session variable '#{key}': #{json value}"
+        value
 
     fn.all = -> _.objectify keys
                 , (Session.get(k) for k in keys)

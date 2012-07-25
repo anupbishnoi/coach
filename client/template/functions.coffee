@@ -22,7 +22,8 @@
   Template.search_for.item = ->
     inside "Template.search_for.item"
     {search_for, view_as} = App.session "navigation"
-    App.ui "search_for/#{search_for}/#{view_as}"
+    App.ui "search_for/#{view_as}"
+    , search_for
 
   (->
     selected = []

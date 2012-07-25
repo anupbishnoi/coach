@@ -78,6 +78,60 @@
     "duty_type": "org"
     "center_coordinator_duty": ["center_coordinator", "duty_type"]
 
+  App.get.addAlternate [
+      "center_head"
+      "vendor"
+      "center_staff"
+      "center_coordinator"
+      "teacher"
+      "student"
+    ]
+  , "person"
+
+  App.get.addField
+    "doc_type":
+      doc_name: (doc)-> _.printable doc.doc_id
+
+    "student":
+      due_installment: (doc)->
+        receipts = App.find "student_receipt"
+        , student: doc.doc_id
+        dues = App.find "due_installment"
+        , batch: doc.batch
+        if dues.length is 0
+          due = 0
+        else if receipts.length is 0
+          ensure "integer", dues[0].amount
+          , "Due document must have an integer amount field"
+          due = dues[0].amount
+        else
+          for d in dues
+            ensure "integer", d.amount
+            , "Due document must have an integer amount field"
+          for r in receipts
+            ensure "integer", r.amount
+            , "Receipt document must have an integer amount field"
+          due = (_.sum _.pluck dues, "amount") -
+                (_.sum _.pluck receipts, "amount")
+        due > 0 and due
+
+      last_paid_on: (doc)->
+        receipt = App.find.one "student_receipt"
+        , { student: doc.doc_id }
+        , { sort: on: 1 }
+        receipt and receipt.on and
+          (_.date receipt.on)
+
+    "study_class":
+      topic_and_id: (doc)->
+        name = App.get "topic/doc_name"
+               , doc
+        "#{name} - #{doc.id}"
+      from_and_to: (doc)->
+        "#{_.date doc.from}, #{_.time doc.from} - #{_.time doc.to}"
+      subject_and_batch: (doc)->
+        "#{App.get "subject/doc_name", doc}, #{App.get "batch/doc_name", doc}"
+
   App.find.addDefaults (_.difference App.collection.list()
                         , [ "doc_type"
                             "org"
@@ -97,43 +151,4 @@
                             "absent"
                           ])
   , active: true
-
-  App.get.addField "doc_type"
-  , doc_name: (doc)-> _.printable doc.doc_id
-
-  App.get.addField "student"
-  , due_installment: (doc)->
-      receipts = App.find "student_receipt"
-      , student: doc.doc_id
-      dues = App.find "due_installment"
-      , batch: doc.batch
-      if dues.length is 0
-        due = 0
-      else if receipts.length is 0
-        ensure "defined", dues[0].amount
-        due = dues[0].amount
-      else
-        ensure "defined", d.amount for d in dues
-        ensure "defined", r.amount for r in receipts
-        due = (_.sum _.pluck dues, "amount") -
-              (_.sum _.pluck receipts, "amount")
-      due > 0 and due
-
-  , last_paid_on: (doc)->
-      receipt = App.find.one "student_receipt"
-      , { student: doc.doc_id }
-      , { sort: on: 1 }
-      receipt and receipt.on and
-        (_.date new Date receipt.on)
-
-  App.get.addAlternate [
-      "center_head"
-      "vendor"
-      "center_staff"
-      "center_coordinator"
-      "teacher"
-      "student"
-    ]
-  , "person"
-
 )(_.log, _.json, _.ensure, _.ensure.test, _.ensure.inside, _.ensure.error)

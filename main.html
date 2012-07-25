@@ -14,7 +14,7 @@
         {{> look_in}}
       </div>
       <div class="span8">
-        <div class="well" id="search_bar">
+        <div class="well animated fadeInDownBig" id="search_bar">
           <div class="row">
             <div class="input-prepend input-append span7">
               {{> filter_menu}}
@@ -48,35 +48,37 @@
       {{#each item}}
       <tr>
         <td>
-          <div class="pull-right span4 actions">
-            {{#each action}}
-            <div>
-              <a class="btn btn-small" href="#">
-                {{this}}
-              </a>
+          <div>
+            <div class="pull-right span4 actions">
+              {{#each action}}
+              <div>
+                <a class="btn btn-small" href="#">
+                  {{this}}
+                </a>
+              </div>
+              {{/each}}
             </div>
-            {{/each}}
-          </div>
-          <div class="pull-right span3 information">
-            <table class="table table-condensed">
-              <tbody>
-                {{#each information}}
-                <tr>
-                  <td class="field">{{field}}</td>
-                  <td class="value">{{value}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div class="span3 identification">
-            {{#with identification}}
-            <h3>{{main}}</h3>
-            <h4>{{secondary}}</h4><br/>
-            {{#each more}}
-            <h6>{{this}}</h6>
-            {{/each}}
-            {{/with}}
+            <div class="pull-right span3 information">
+              <table class="table table-condensed">
+                <tbody>
+                  {{#each information}}
+                  <tr>
+                    <td class="field">{{field}}</td>
+                    <td class="value">{{value}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+            <div class="span3 identification">
+              {{#with identification}}
+              <h3>{{main}}</h3>
+              <h4>{{secondary}}</h4><br/>
+              {{#each more}}
+              <h6>{{this}}</h6>
+              {{/each}}
+              {{/with}}
+            </div>
           </div>
         </td>
       </tr>
@@ -91,7 +93,7 @@
 </template>
 
 <template name="top_bar">
-  <div class="navbar navbar-fixed-top">
+  <div class="navbar navbar-fixed-top animated fadeInDownBig">
     <div class="navbar-inner">
       <div class="container">
         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -124,13 +126,13 @@
 </template>
 
 <template name="search_for">
-  <div id="search_for">
+  <div id="search_for" class="animated fadeInRightBig">
     <h3>Search For</h3>
     <hr>
     <ul class="nav nav-tabs nav-stacked">
       {{#each item}}
         <li class="{{ui_active}}">
-          <a class="item" href="#search_for/{{type_id}}">
+          <a class="item" href="#">
             {{type_name}}
           </a>
         </li>
@@ -140,7 +142,10 @@
 </template>
 
 <template name="look_in">
-  <div id="look_in">
+  <div id="look_in" class="animated fadeInLeftBig">
+    <a class="btn btn-small edit_button">
+      <i class="icon-edit"></i>
+    </a>
     <h3>Look in</h3>
     {{#if any}}
       {{> look_in_selected}}
@@ -152,13 +157,13 @@
 <template name="look_in_selected">
   {{#if any}}
     <hr>
-    <ul class="nav nav-tabs nav-stacked">
+    <ul class="nav nav-tabs nav-stacked look_in_selected">
       {{#each item}}
-        <li>
-          <a class="selected" href="#" id={{id}}>
-            {{doc_name}}
-          </a>
-        </li>
+      <li class="animated fadeInUp" id={{doc_id}}>
+        <a class="selected" href="#">
+          {{doc_name}}
+        </a>
+      </li>
       {{/each}}
     </ul>
   {{/if}}
@@ -167,13 +172,13 @@
 <template name="look_in_options">
   {{#if any}}
     <hr>
-    <ul class="nav nav-pills nav-stacked">
+    <ul class="nav nav-pills nav-stacked look_in_options">
       {{#each item}}
-        <li>
-          <a class="option" href="#" id={{id}}>
-            {{doc_name}}
-          </a>
-        </li>
+      <li class="animated fadeInDown" id={{doc_id}}>
+        <a class="option" href="#">
+          {{doc_name}}
+        </a>
+      </li>
       {{/each}}
     </ul>
   {{/if}}

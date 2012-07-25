@@ -29,8 +29,8 @@ refreshClasses = ->
     topic: f_and_m.doc_id
     id: "1" # class no. for the same topic
 
-    from: "20 May 2004, 3:30 PM"
-    to: "20 May 2004, 6:30 PM"
+    from: (new Date 2004, 4, 20, 15, 30).getTime()
+    to: (new Date 2004, 4, 20, 18, 30).getTime()
     teacher: anirudh_teacher.doc_id
     room: room.doc_id
     active: true
@@ -49,8 +49,8 @@ refreshClasses = ->
     topic: f_and_m.doc_id
     id: "1" # class no. for the same topic (for this group)
 
-    from: "21 May 2004, 3:30 PM"
-    to: "21 May 2004, 6:30 PM"
+    from: (new Date 2004, 4, 21, 15, 30).getTime()
+    to: (new Date 2004, 4, 21, 18, 30).getTime()
     teacher: anirudh_teacher.doc_id
     room: room.doc_id
     active: true

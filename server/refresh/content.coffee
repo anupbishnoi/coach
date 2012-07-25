@@ -69,9 +69,8 @@ refreshContent = ->
     id: "1"
 
     doc_name: "Vidyamandir XIIth Pass Admission Test for IITJEE - 2005"
-    on: "29 February 2004"
-    from: "3:00 PM"
-    to: "6:00 PM"
+    from: (new Date 2004, 1, 29, 15).getTime()
+    to: (new Date 2004, 1, 29, 18).getTime()
     duration: "3 hours"
     sections: [] # marking scheme and total marks are part of sections
     instructions: []
