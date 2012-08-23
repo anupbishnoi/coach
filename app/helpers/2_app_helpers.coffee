@@ -1,9 +1,9 @@
 App = {}
 
-App.collection = (->
+Collection = (->
   collections = {}
   fn = (name)->
-    [ name ] = _.match arguments, [ "non_empty_string" ], 1, "app.collection"
+    [ name ] = _.match arguments, [ "non_empty_string" ], 1, "collection"
     ensure "defined", collections[name]
     , -> "No such collection found: #{name}"
     collections[name]
@@ -30,7 +30,7 @@ App.collection = (->
 # Find "center"
 # Find "class", "1" (org: "vmc" will be added by the defaults configuration)
 # Find {doc_type: "center"}
-App.find = (->
+Find = (->
   default_mappings = {}
   parent_types = {}
 
@@ -41,7 +41,7 @@ App.find = (->
           "arguments"
           "boolean" ]
       , 2
-      , "app.find#checkSanityIn"
+      , "find#checkSanityIn"
       , false
     [ index, arg1, arg2, arg3, arg4 ] =
       _.match args
@@ -56,7 +56,7 @@ App.find = (->
           "function"         ], 1
       , [ "object"
           "function"         ], 1
-      , "app.find#{func_identifier}"
+      , "find#{func_identifier}"
     switch index
       when 0
         [ what, selector, options, filter ] =
@@ -85,7 +85,7 @@ App.find = (->
     selector ?= {}
     options ?= {}
     unless allow_invalid
-      ensure "defined", (App.collection what)
+      ensure "defined", (Collection what)
       , -> "Invalid thing to be searching for: #{what}"
     if default_mappings[what]?
       _.defaults selector, default_mappings[what]
@@ -118,9 +118,9 @@ App.find = (->
   fn = ->
     [ index, what, selector, options, filters... ] = checkSanityIn "" , arguments
     if selector.doc_id?
-      ret = (App.collection what).findOne(selector, options)
+      ret = (Collection what).findOne(selector, options)
     else
-      ret = (App.collection what).find(selector, options).fetch()
+      ret = (Collection what).find(selector, options).fetch()
       filters = _.filter filters
                 , (f) -> its "function", f
       ret = (_.filter ret, f) for f in filters
@@ -128,11 +128,11 @@ App.find = (->
 
   fn.one = ->
     [ index, what, selector, options ] = checkSanityIn ".one" , arguments
-    (App.collection what).findOne(selector, options)
+    (Collection what).findOne(selector, options)
 
   fn.cursor = ->
     [ index, what, selector, options ] = checkSanityIn ".cursor", arguments
-    (App.collection what).find(selector, options)
+    (Collection what).find(selector, options)
   
   fn.count = ->
     [ index, what, selector, options ] = checkSanityIn ".count", arguments
@@ -140,14 +140,14 @@ App.find = (->
 
   fn.addDefaults = _.keyValueAdder default_mappings
                    , "object"
-                   , "app.find.addDefaults"
+                   , "find.addDefaults"
   fn.addParent = _.keyValueAdder parent_types
                  , [ "non_empty_string", "array" ]
-                 , "app.find.addParent"
+                 , "find.addParent"
   fn
 )()
 
-App.get = (->
+Get = (->
   alternate = {}
   mapped_fields = {}
 
@@ -159,7 +159,7 @@ App.get = (->
           "array"
           "object" ]
       , 2
-      , "app.get#memoized"
+      , "get#memoized"
     if rest_path?.length > 0
       key = "#{first_value}/#{rest_path.join "/"}"
       if memo?[key]?
@@ -178,14 +178,14 @@ App.get = (->
           "object"
           "object" ]
       , 2
-      , "app.get#deepValue"
+      , "get#deepValue"
     path = field.split "/"
     value_in_doc = doc[path[0]]
     if its "non_empty_string", value_in_doc
       findFunc = ->
         _.findValue path
         , doc
-        , App.find
+        , Find
         , true
       memoized findFunc
       , value_in_doc
@@ -199,7 +199,7 @@ App.get = (->
           "object"
           "object" ]
       , 2
-      , "app.get"
+      , "get"
     ensure "non_empty_string", doc.doc_type
     , -> "Doc needs a doc_type: #{json doc}"
 
@@ -221,14 +221,14 @@ App.get = (->
 
   fn.addAlternate = _.keyValueAdder alternate
                     , "non_empty_string"
-                    , "app.get.addAlternate"
+                    , "get.addAlternate"
   fn.addField = _.keyValueAdder mapped_fields
                 , "object"
-                , "app.get.addField"
+                , "get.addField"
   fn
 )()
 
-App.docMap = (->
+DocMap = (->
   doc_maps = {}
 
   recurse = ->
@@ -241,14 +241,14 @@ App.docMap = (->
           "object"
           "string" ]
       , 2
-      , "app.docMap#recurse"
+      , "DocMap#recurse"
       , false
     if its "string", current
       if (_.startsWith current, "'") and
          (_.endsWith current, "'")
         value = current[1...-1]
       else
-        value = App.get current, doc
+        value = Get current, doc
     else if its "object", current
       obj = initial or {}
       for own key, spec of current
@@ -266,7 +266,7 @@ App.docMap = (->
           "non_empty_string"
           "boolean" ]
       , 2
-      , "app.docMap"
+      , "DocMap"
     ensure "defined", doc_maps[index_str]
     , -> "No such doc map found: #{index_str}"
     mapped = _.map docs
@@ -293,11 +293,11 @@ App.docMap = (->
            , [ "non_empty_string"
                "object"
                "array" ]
-           , "app.docMap.add"
+           , "DocMap.add"
   fn
 )()
 
-App.docFilter = (->
+DocFilter = (->
   searchables = {}
 
   fn = ->
@@ -306,7 +306,7 @@ App.docFilter = (->
       , [ "string"
           "non_empty_string" ]
       , 1
-      , "app.docFilter"
+      , "DocFilter"
     query_items = _.uniq _.keywords query
     memo = {}
     if query_items.length is 0
@@ -316,7 +316,7 @@ App.docFilter = (->
         ensure.inside "#{func_identifier}#filter", arguments
         list = _.uniq _.flatten _.map searchables[doc.doc_type]
                                 , (field)->
-                                    _.keywords App.get field
+                                    _.keywords Get field
                                                , doc
                                                , memo
         found = []
@@ -326,6 +326,6 @@ App.docFilter = (->
 
   fn.addSearchable = _.keyValueAdder searchables
                      , "array"
-                     , "app.docFilter.addSearchable"
+                     , "DocFilter.addSearchable"
   fn
 )()

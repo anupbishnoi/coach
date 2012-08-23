@@ -1,4 +1,4 @@
-App.collection.add [
+Collection.add [
   "doc_type"
 
   "org"
@@ -44,10 +44,10 @@ App.collection.add [
       , (doc_id)->
           ensure [ "non_empty_string", "object" ], doc_id
           , -> "Invalid doc_id/object (#{json doc_id}) to the check function of: #{name}"
-          (App.find name, doc_id: (doc_id.doc_id or doc_id))?
+          (Find name, doc_id: (doc_id.doc_id or doc_id))?
       coll
 
-App.find.addParent
+Find.addParent
   "org": "doc_type"
   "center": "org"
   "batch": "org"
@@ -85,14 +85,14 @@ App.find.addParent
   "duty_type": "org"
   "center_coordinator_duty": ["center_coordinator", "duty_type"]
 
-App.find.addDefaults (
+Find.addDefaults (
   _.difference Collection.list()
   , [ "doc_type"
      "org"
      "person" ]
 ), org: "vmc"    #mark disgusting!
 
-App.find.addDefaults (
+Find.addDefaults (
   _.difference Collection.list()
   , [ "doc_type"
      "person"
@@ -106,7 +106,7 @@ App.find.addDefaults (
      "absent" ]
 ), active: true
 
-App.get.addAlternate [
+Get.addAlternate [
   "center_head"
   "center_manager"
   "vendor"
@@ -116,15 +116,15 @@ App.get.addAlternate [
   "student"
 ], "person"
 
-App.get.addField
+Get.addField
   "doc_type":
     doc_name: (doc)-> _.printable doc.doc_id
 
   "student":
     due_installment: (doc)->
-      receipts = App.find "student_receipt"
+      receipts = Find "student_receipt"
       , student: doc.doc_id
-      dues = App.find "due_installment"
+      dues = Find "due_installment"
       , batch: doc.batch
       if dues.length is 0
         due = 0
@@ -144,14 +144,14 @@ App.get.addField
       due > 0 and due
 
     last_paid_on: (doc)->
-      receipt = App.find.one "student_receipt"
+  receipt = Find.one "student_receipt"
       , { student: doc.doc_id }
       , { sort: on: 1 }
       (moment receipt.on).format("D MMM YYYY") if receipt?.on?
 
   "study_class":
     topic_and_id: (doc)->
-      name = App.get "topic/doc_name"
+      name = Get "topic/doc_name"
              , doc
       "#{name} - #{doc.id}"
     from_and_to: (doc)->
@@ -159,5 +159,5 @@ App.get.addField
       "#{(moment from).format("D MMM YYYY")}" +
         ", #{(moment from).format("h:mm A") } - #{(moment to).format("h:mm A")}"
     subject_and_batch: (doc)->
-      "#{App.get "subject/doc_name", doc}, #{App.get "batch/doc_name", doc}"
+      "#{Get "subject/doc_name", doc}, #{Get "batch/doc_name", doc}"
 

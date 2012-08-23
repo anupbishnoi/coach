@@ -1,11 +1,7 @@
-refreshDb = ->
-  refreshMeta()
-  refreshMain()
-  refreshPersonnel()
-  refreshContent()
-  refreshClasses()
-  refreshDuties()
+_.each Collection.list(), (name)->
+  Meteor.publish name, ->
+    Collection(name).find({})
 
 Meteor.startup ->
-  #if App.find.count("org") is 0
+  #if Find.count("org") is 0
     refreshDb()
