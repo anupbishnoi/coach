@@ -1,5 +1,3 @@
-((log, json, ensure, its, inside, error)->
-
   App.session = (->
     ensure.types "session_search"
     , name: "session variable for search"
@@ -42,5 +40,3 @@
                 , (Session.get(k) for k in keys)
     fn
   )()
-
-)(_.log, _.json, _.ensure, _.ensure.test, _.ensure.inside, _.ensure.error)

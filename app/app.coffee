@@ -37,10 +37,18 @@ App.collection.add [
   "absent"
 
   "duty_type"
-  "center_coordinator_duty"
-]
+  "center_coordinator_duty" ]
+  , (name) ->
+      coll = new Meteor.Collection name
+      ensure.types name
+      , (doc_id)->
+          ensure [ "non_empty_string", "object" ], doc_id
+          , -> "Invalid doc_id/object (#{json doc_id}) to the check function of: #{name}"
+          (App.find name, doc_id: (doc_id.doc_id or doc_id))?
+      coll
 
-App.docIdfy.addParent
+App.find.addParent
+  "org": "doc_type"
   "center": "org"
   "batch": "org"
   "due_installment": "batch"
@@ -55,6 +63,7 @@ App.docIdfy.addParent
     "study_material_type"
   ]
   "center_head": "center"
+  "center_manager": "center"
   "vendor": "org"
   "center_staff": "center"
   "center_staff_in_out": "center_staff"
@@ -76,15 +85,36 @@ App.docIdfy.addParent
   "duty_type": "org"
   "center_coordinator_duty": ["center_coordinator", "duty_type"]
 
+App.find.addDefaults (
+  _.difference Collection.list()
+  , [ "doc_type"
+     "org"
+     "person" ]
+), org: "vmc"    #mark disgusting!
+
+App.find.addDefaults (
+  _.difference Collection.list()
+  , [ "doc_type"
+     "person"
+     "center_staff_in_out"
+     "applicant_discount"
+     "applicant_receipt"
+     "student_discount"
+     "student_receipt"
+     "accrual"
+     "refund"
+     "absent" ]
+), active: true
+
 App.get.addAlternate [
-    "center_head"
-    "vendor"
-    "center_staff"
-    "center_coordinator"
-    "teacher"
-    "student"
-  ]
-, "person"
+  "center_head"
+  "center_manager"
+  "vendor"
+  "center_staff"
+  "center_coordinator"
+  "teacher"
+  "student"
+], "person"
 
 App.get.addField
   "doc_type":
@@ -117,8 +147,7 @@ App.get.addField
       receipt = App.find.one "student_receipt"
       , { student: doc.doc_id }
       , { sort: on: 1 }
-      receipt and receipt.on and
-        (_.date receipt.on)
+      (moment receipt.on).format("D MMM YYYY") if receipt?.on?
 
   "study_class":
     topic_and_id: (doc)->
@@ -126,26 +155,9 @@ App.get.addField
              , doc
       "#{name} - #{doc.id}"
     from_and_to: (doc)->
-      "#{_.date doc.from}, #{_.time doc.from} - #{_.time doc.to}"
+      { from, to } = doc
+      "#{(moment from).format("D MMM YYYY")}" +
+        ", #{(moment from).format("h:mm A") } - #{(moment to).format("h:mm A")}"
     subject_and_batch: (doc)->
       "#{App.get "subject/doc_name", doc}, #{App.get "batch/doc_name", doc}"
 
-App.find.addDefaults (_.difference App.collection.list()
-                      , [ "doc_type"
-                          "org"
-                          "person" ])
-, App.docIdfy org: App.org
-
-App.find.addDefaults (_.difference App.collection.list()
-                      , [ "doc_type"
-                          "person"
-                          "center_staff_in_out"
-                          "applicant_discount"
-                          "applicant_receipt"
-                          "student_discount"
-                          "student_receipt"
-                          "accrual"
-                          "refund"
-                          "absent"
-                        ])
-, active: true
