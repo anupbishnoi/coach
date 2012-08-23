@@ -40,10 +40,10 @@ Collection.add [
   "center_coordinator_duty" ]
   , (name) ->
       coll = new Meteor.Collection name
-      ensure.types name
+      Ensure.types name
       , (doc_id)->
-          ensure [ "non_empty_string", "object" ], doc_id
-          , -> "Invalid doc_id/object (#{json doc_id}) to the check function of: #{name}"
+          Ensure [ "non_empty_string", "object" ], doc_id
+          , -> "Invalid doc_id/object (#{Json doc_id}) to the check function of: #{name}"
           (Find name, doc_id: (doc_id.doc_id or doc_id))?
       coll
 
@@ -129,15 +129,15 @@ Get.addField
       if dues.length is 0
         due = 0
       else if receipts.length is 0
-        ensure "integer", dues[0].amount
+        Ensure "integer", dues[0].amount
         , "Due document must have an integer amount field"
         due = dues[0].amount
       else
         for d in dues
-          ensure "integer", d.amount
+          Ensure "integer", d.amount
           , "Due document must have an integer amount field"
         for r in receipts
-          ensure "integer", r.amount
+          Ensure "integer", r.amount
           , "Receipt document must have an integer amount field"
         due = (_.sum _.pluck dues, "amount") -
               (_.sum _.pluck receipts, "amount")

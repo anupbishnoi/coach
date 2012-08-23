@@ -93,25 +93,25 @@ Session = (->
 UserDetails = ->
   user_doc = Find "person/9"
   view_as = Get "role.0", user_doc
-  ensure "type", view_as
-  , -> "Invalid role (#{json view_as}) in user doc:\n#{json user_doc}"
+  Ensure "type", view_as
+  , -> "Invalid role (#{Json view_as}) in user doc:\n#{Json user_doc}"
   role_doc = Find view_as
-  ensure "object", role_doc
-  , -> "Role document not found for: #{json user_doc}"
+  Ensure "object", role_doc
+  , -> "Role document not found for: #{Json user_doc}"
   search_for_list = Get "can_search_for", role_doc
-  ensure "array", search_for_list
-  , -> "No searchable types specified for: #{json role_doc}"
+  Ensure "array", search_for_list
+  , -> "No searchable types specified for: #{Json role_doc}"
   for item in search_for_list
-    ensure "type", item
+    Ensure "type", item
     , -> "'#{item}' not a valid type to search_for"
   search_for = Get "ui.search_for", role_doc
   look_in_selected = Get "ui.look_in.selected", role_doc
   look_in_order_obj = Get "ui.look_in.order", role_doc
-  ensure "object", look_in_order_obj
-  , -> "No look_in.order specified for role doc: #{json role_doc}"
+  Ensure "object", look_in_order_obj
+  , -> "No look_in.order specified for role doc: #{Json role_doc}"
   look_in_order = look_in_order_obj[search_for]
-  ensure "array", look_in_order
-  , -> "No look_in.order for #{search_for} in: #{json role_doc}"
+  Ensure "array", look_in_order
+  , -> "No look_in.order for #{search_for} in: #{Json role_doc}"
   search_for ?= "student"
   look_in_selected ?= []
   look_in_order ?= [ "batch"

@@ -4,14 +4,14 @@ Collection = (->
   collections = {}
   fn = (name)->
     [ name ] = _.match arguments, [ "non_empty_string" ], 1, "collection"
-    ensure "defined", collections[name]
+    Ensure "defined", collections[name]
     , -> "No such collection found: #{name}"
     collections[name]
 
-  ensure.types "meteor_collection"
+  Ensure.types "meteor_collection"
   , (obj) -> obj instanceof Meteor.Collection
 
-  fn.add = _.keyValueAdder collections
+  fn.add = KeyValueAdder collections
            , "meteor_collection"
            , "collection.add"
   fn.list = -> _.keys collections
@@ -80,36 +80,36 @@ Find = (->
           what = doc_type
           selector = {}
         else
-          ensure.error "Object argument needed either doc_id or doc_type: #{json arg1}"
+          Ensure.error "Object argument needed either doc_id or doc_type: #{Json arg1}"
         filter = arg2
     selector ?= {}
     options ?= {}
     unless allow_invalid
-      ensure "defined", (Collection what)
+      Ensure "defined", (Collection what)
       , -> "Invalid thing to be searching for: #{what}"
     if default_mappings[what]?
       _.defaults selector, default_mappings[what]
 
     docId = (field)->
-      ensure "non_empty_string", selector[field]
-      , -> "Value not found for field: #{field} in: #{json selector}"
+      Ensure "non_empty_string", selector[field]
+      , -> "Value not found for field: #{field} in: #{Json selector}"
       if (field is "org") or ("/" in selector[field]) or (not parent_types[field]?)
         # note that even if 'org' wasn't specified, it was added by the _.defaults above
         selector[field]
       else
         parent_type = parent_types[field]
-        ensure "defined", parent_type
+        Ensure "defined", parent_type
         , -> "#{field} needs a parent type"
         if its "string", parent_type
           "#{docId parent_type}/#{selector[field]}"
         else
-          ensure "array", parent_type
-          , -> "Parent type of #{field} must either be string or array: #{json parent_type}"
+          Ensure "array", parent_type
+          , -> "Parent type of #{field} must either be string or array: #{Json parent_type}"
           ids = ("[#{docId coparent}]" for coparent in parent_type)
           extra_parents =
             (parent_types[p] for p in parent_type when parent_types[p] isnt parent_types[parent_type[0]])
           if extra_parents.length isnt 0
-            ensure.error "#{parent_type.join ", "} don't have a common parent"
+            Ensure.error "#{parent_type.join ", "} don't have a common parent"
           "#{docId parent_list[0]}/#{ids.join "."}/#{selector[field]}"
       for own field of selector
         selector[field] = "#{field}/#{docId field}"
@@ -138,10 +138,10 @@ Find = (->
     [ index, what, selector, options ] = checkSanityIn ".count", arguments
     fn.cursor(what, selector, options).count()
 
-  fn.addDefaults = _.keyValueAdder default_mappings
+  fn.addDefaults = KeyValueAdder default_mappings
                    , "object"
                    , "find.addDefaults"
-  fn.addParent = _.keyValueAdder parent_types
+  fn.addParent = KeyValueAdder parent_types
                  , [ "non_empty_string", "array" ]
                  , "find.addParent"
   fn
@@ -200,8 +200,8 @@ Get = (->
           "object" ]
       , 2
       , "get"
-    ensure "non_empty_string", doc.doc_type
-    , -> "Doc needs a doc_type: #{json doc}"
+    Ensure "non_empty_string", doc.doc_type
+    , -> "Doc needs a doc_type: #{Json doc}"
 
     v = deepValue field
         , doc
@@ -219,10 +219,10 @@ Get = (->
               , memo
     v
 
-  fn.addAlternate = _.keyValueAdder alternate
+  fn.addAlternate = KeyValueAdder alternate
                     , "non_empty_string"
                     , "get.addAlternate"
-  fn.addField = _.keyValueAdder mapped_fields
+  fn.addField = KeyValueAdder mapped_fields
                 , "object"
                 , "get.addField"
   fn
@@ -267,12 +267,12 @@ DocMap = (->
           "boolean" ]
       , 2
       , "DocMap"
-    ensure "defined", doc_maps[index_str]
+    Ensure "defined", doc_maps[index_str]
     , -> "No such doc map found: #{index_str}"
     mapped = _.map docs
              , (doc)->
-                 ensure "object", doc
-                 , -> "doc needs to be an object: #{json doc}"
+                 Ensure "object", doc
+                 , -> "doc needs to be an object: #{Json doc}"
                  if include_original is true
                    recurse doc_maps[index_str]
                    , doc
@@ -289,7 +289,7 @@ DocMap = (->
         , (func)-> doc = func doc
         doc
 
-  fn.add = _.keyValueAdder doc_maps
+  fn.add = KeyValueAdder doc_maps
            , [ "non_empty_string"
                "object"
                "array" ]
@@ -313,7 +313,7 @@ DocFilter = (->
       -> true
     else
       (doc)->
-        ensure.inside "#{func_identifier}#filter", arguments
+        Ensure.inside "#{func_identifier}#filter", arguments
         list = _.uniq _.flatten _.map searchables[doc.doc_type]
                                 , (field)->
                                     _.keywords Get field
@@ -324,7 +324,7 @@ DocFilter = (->
           found.push true if item in list
         (_.difference query_items, list).length is 0
 
-  fn.addSearchable = _.keyValueAdder searchables
+  fn.addSearchable = KeyValueAdder searchables
                      , "array"
                      , "DocFilter.addSearchable"
   fn

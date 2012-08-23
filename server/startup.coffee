@@ -1,7 +1,6 @@
 _.each Collection.list(), (name)->
-  Meteor.publish name, ->
-    Collection(name).find({})
+  Meteor.publish name, -> Find.cursor name
 
 Meteor.startup ->
-  #if Find.count("org") is 0
+  #if (Find.count "org") is 0
     refreshDb()
