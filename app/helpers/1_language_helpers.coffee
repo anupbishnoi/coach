@@ -6,6 +6,7 @@ _.mixin
       if _.isString obj
         obj
       else
+        obj = _.toArray obj if _.isArguments obj
         if ugly_print is true
           JSON.stringify obj
         else 
@@ -26,8 +27,6 @@ _.mixin
   ensure: (->
     types = {}
     from_underscore = [
-      "undefined"
-      "null"
       "empty"
       "string"
       "boolean"
@@ -42,13 +41,9 @@ _.mixin
         check: (value)-> _["is#{_.capitalize type}"] value
 
     more_types =
-      "not_defined":
-        name: "not defined (either null or undefined)"
-        check: (v)-> (types.null.check v) or
-                     (types.undefined.check v)
       "defined":
         name: "defined (neither null nor undefined)"
-        check: (v)-> not (types.not_defined.check v)
+        check: (v)-> v?
       "true":
         name: "true"
         check: (v)-> v is true
@@ -67,11 +62,11 @@ _.mixin
                      (not _.isBlank s)
       "string_if_defined":
         name: "a string, if defined"
-        check: (s)-> (types.undefined.check s) or
+        check: (s)-> (not types.defined.check s) or
                      (types.string.check s)
       "non_empty_string_if_defined":
         name: "a non-empty string, if defined"
-        check: (s)-> (types.undefined.check s) or
+        check: (s)-> (not types.defined.check s) or
                      (types.non_empty_string.check s)
       "blank":
         name: "a blank string"
@@ -88,6 +83,10 @@ _.mixin
         name: "a decimal number"
         check: (n)-> (types.number.check n) and
                      not (types.integer.check n)
+      "numeric":
+        name: "a numeric value (can be a string representation)"
+        check: (n)-> (not isNaN parseFloat n) and
+                     (isFinite n)
       "positive_number":
         name: "a positive number"
         check: (n)-> (types.number.check n) and
@@ -106,7 +105,7 @@ _.mixin
                      (n < 0)
       "boolean_if_defined":
         name: "a boolean, if defined"
-        check: (b)-> (types.undefined.check b) or
+        check: (b)-> (not types.defined.check b) or
                      (types.boolean.check b)
       "object":
         name: "an object"
@@ -124,87 +123,80 @@ _.mixin
     _.extend types
     , more_types
 
-    stack = []
-    stack.max_size = 1000
+    e = (type, message) ->
+      @type = type
+      @message = message
+    e::toString = ->
+      @type + (if @message then ": #{@message}" else "")
 
-    [ EnsureException, AssertException, TypeException ] = (->
-      constructor_function = (type)->
-        (problem)->
-          this.type = type
-          this.message = problem
-
-      toString_function = ->
-        this.type + (if this.message then ": #{this.message}" else "")
-
-      exceptions =
-        _.map [ "EnsureException"
-                "AssertException"
-                "TypeException" ]
-        , constructor_function
-
-      _.each exceptions
-      , (exception)-> exception.prototype.toString = toString_function
-      exceptions
-    )()
-
-    checkItem = (item, value, message, exception, inverse)->
-      unless types.non_empty_string.check item
-        throw new EnsureException "Invalid checking type name: #{_.json item}"
-      unless types.defined.check types[item]
-        throw new EnsureException "No matching checking type found for: #{item}"
-      unless types.string_if_defined.check message
-        throw new EnsureException "Exception message should be a string: #{message}"
-      if types.defined.check message
-        exception or= AssertException
+    xor = (one, two) ->
+      if one and two
+        false
+      else if not one and not two
+        false
       else
-        exception or= TypeException
-        message = "#{value} is not: #{types[item].name}"
-      if inverse is true
-        throw new exception message if types[item].check value
-      else
-        throw new exception message unless types[item].check value
-
-    fn = (what, value, message, exception, inverse)->
-      try
-        if types.array.check what
-          es = []
-          for item in what
-            try
-              checkItem item
-              , value
-              , message
-              , exception
-              , inverse
-            catch e
-              es.push e
-          unless es.length < what.length
-            throw es[0]
-        else
-          checkItem what
-          , value
-          , message
-          , exception
-          , inverse
         true
-      catch exception
-        exception.message += "\n\n" + _.json fn.stack()
-        throw exception
 
-    fn.not = (what, value, message, exception)->
+    fn = (what, value, message, exception_type, inverse, just_checking)->
+      exception = null
+
+      if types.function.check message
+        message_func = message
+        exception_type ?= "AssertException"
+      else if types.non_empty_string.check message
+        message_func = -> message
+        exception_type ?= "AssertException"
+      else if not types.defined.check message
+        message_func = -> "#{_.json value} is not: #{_.json what}"
+        exception_type ?= "TypeException"
+      else
+        exception ?= new e "EnsureException"
+                         , "Exception message needs to be a string or function: #{_.json message}"
+
+      getException = (item) ->
+        if not types.defined.check types[item]
+          new e "EnsureException"
+              , "No matching checking type found for: #{_.json item}"
+        else if xor (inverse isnt true), (types[item].check value)
+          new e exception_type
+
+      unless exception?
+        if types.array.check what
+          for item in what
+            exception = getException item
+            break if not exception
+        else if types.string.check what
+          exception ?= getException what
+        else
+          exception ?= new e "EnsureException"
+                           , "Invalid checking type name: #{_.json what}"
+
+      if exception?
+        if just_checking is true
+          false
+        else
+          exception.message = "#{message_func()}\n#{_.json fn.stack 5}"
+          throw exception
+      else
+        true
+
+    fn.not = (what, value, message, exception_type)->
       fn what
       , value
       , message
-      , exception
+      , exception_type
       , true
+      , false
 
-    fn.test = (what, value, inverse)->
-      succeeded = if inverse is true then false else true
-      try
-        fn what
-        , value
-        succeeded
-      catch exception
-        not succeeded
+    fn.test = fn.its = (what, value, inverse)->
+      result = fn what
+               , value
+               , null
+               , null
+               , null
+               , true
+      result = not result if inverse is true
+      result
 
     fn.test.not = (what, value)->
       fn.test what
@@ -212,87 +204,87 @@ _.mixin
       , true
 
     fn.error = (message)->
-      fn "false"
-      , true
-      , message
+      if types.function.check message
+        message = message()
+      if types.non_empty_string.check message
+        throw new e "AssertException", "#{message}\n\n#{fn.stack 2}"
+      else
+        throw new e "EnsureException"
+                  , "Error message needs to be a string or function: #{_.json message}\n\n#{fn.stack 2}"
 
     fn.types = (type, obj)->
-      fn "string", type
-      fn "defined", obj
-      fn "string", obj.name
-      fn "function", obj.check
+      fn "non_empty_string", type
+      , -> "Type name needs to be a non-empty string: #{_.json type}"
+      if fn.test "function", obj
+        obj =
+          name: (_s.titleize _s.humanize type)
+          check: obj
+      else
+        fn "object", obj
+        , -> "No valid type definition specified for: #{type}"
+        obj.name ?= (_s.titleize _s.humanize type)
+        fn "non_empty_string", obj.name
+        , -> "Type name needs to be a non-empty string: #{obj.name}"
+        fn "function", obj.check
+        , -> "Need a type checking function for type: #{type}"
 
-      fn "undefined", types[type]
-      , "Proposed type already exists: #{type}"
+      fn.not "defined", types[type]
+      , -> "Proposed type already exists: #{type}"
 
-      {name, check} = obj
+      { name, check } = obj
       check = _.wrap check
       , (check, v)->
-        try
-          check(v)
-        catch exception
-          throw new TypeException "#{_.json v}" +
-            " is not: #{types[type].name}"
-      types[type] = {name, check}
+          try
+            check(v)
+          catch exception
+            throw new e "TypeException"
+                      , "#{_.json v} is not: #{types[type].name}"
+      types[type] = { name, check }
       true
 
-    fn.inside = (function_name, args)->
-      fn "non_empty_string", function_name
+    stack = []
+    stack.max_size = 100
 
-      str = "function: #{function_name}"
-      unless types.undefined.check args
-        fn "arguments", args
-        str += "\narguments: #{_.json _.toArray args}"
-      stack.push str
+    fn.inside = (func_identifier, args)->
+      str = "inside: #{_.json func_identifier}"
+      if types.defined.check args
+        args = _.toArray args unless fn.test "array", args
+        str += "\nwith: #{_.json args}"
+      stack = [ str ].concat stack
       if stack.length > stack.max_size
-        stack.splice(0, 1)
-      undefined
+        stack.length -= 1
+      true
 
     fn.stack = (how_many)->
       unless _.isNumber how_many
         how_many = 20
-      stack[stack.length-how_many...stack.length].join "\n-----\n"
-
-    fn.stack.last = -> _.last stack
+      stack[0...how_many].join "\n-----\n"
 
     fn.stack.size = (size)->
-      if fn.test "positive_number", size
+      if fn.test "positive_integer", size
         stack.max_size = size
         if stack.length > stack.max_size
-          stack.splice(0, stack.length - stack.max_size)
-          undefined
+          stack.length = stack.max_size
+          true
       else
         stack.length
 
     fn.stack.empty = ->
       stack = []
-      undefined
-
+      true
     fn
   )()
 
-((log, json, ensure, its, inside, error)->
-  _.mixin
-    match: (arr, spec, minimum_initial, func_identifier, func_inside)->
-      if its "non_empty_string", minimum_initial
-        func_valid = true
-        func_inside = func_identifier
-        func_identifier = minimum_initial
-        minimum_initial = 0
-      func_valid or= its "non_empty_string", func_identifier
-      if func_valid and func_inside isnt false
-        inside func_identifier, arr
-      else
-        inside "_.match", arguments
-      arr = _.toArray arr if its "arguments", arr
-      ensure "array", arr
-      , "Need supplied arguments to be an array"
-      ensure "array", spec
-      , "Type specification must be an array"
+{ log, json, ensure } = _
+{ its } = ensure
+
+_.mixin
+  match: (->
+    matcher = (arr, spec) ->
       i = j = 0
       ret = []
-      while its "defined", arr[i]
-        if (its.not "defined", spec[j]) or
+      while arr[i]?
+        if (not spec[j]?) or
            (its spec[j], arr[i])
           ret.push arr[i]
           i++
@@ -300,248 +292,265 @@ _.mixin
         else
           ret.push null
           j++
-      if its "positive_integer", minimum_initial
-        str = "Invalid arguments"
-        str += " to #{func_identifier}" if func_valid
-        str += "\nArguments: #{json arr}" +
-               "\nShould've been: #{json spec}" +
-               "\nwith minimum initial arguments: #{minimum_initial}"
-        ok = true
-        for i in [0...minimum_initial]
-          if (arr[i] isnt ret[i]) or
-             (i >= arr.length)
-            ok = false
-            break
-        ensure "true"
-        , ok
-        , str
       ret
 
-  _.mixin
-    keyValueAdder: ->
-      [ resource, value_type, func_identifier, overwrite ] =
-        _.match arguments
-        , [ "object"
-            [ "non_empty_string"
-              "array" ]
-            "string"
-            "boolean" ]
-        , 2
-        , "_.keyValueAdder"
-
-      text = (msg, args)->
-        if its "non_empty_string", func_identifier
-          msg += "\n#{func_identifier}\n#{json _.toArray args}"
-        msg
-
-      add = (key, value)->
-        if (its "object", resource[key]) and
-           (its "object", value)
-          resource[key] = _.extend (_.clone resource[key])
-                          , value
-        else if (its "defined", resource[key]) and
-                (overwrite is not true)
-          error text "Key already exists: #{key}"
+    fn = ->
+      args = _.toArray arguments
+      arr = args[0]
+      specs = []
+      mins = []
+      i = 1
+      while its "array", args[i]
+        specs.push args[i]
+        i++
+        if its "integer", args[i]
+          mins.push args[i]
+          i++
         else
-          resource[key] = value
-        true
-
-      (key, value)->
-        inside func_identifier, arguments if func_identifier
-        if its value_type, value
-          if its "non_empty_string", key
-            add key
-            , value
-          else if its "array", key
-            for k in key
-              ensure "non_empty_string", k
-              , "Key must be a string"
-              add k
-              , value
-          else
-            error text "Invalid argument format", arguments
-        else if its "object", key
-          for own k, v of key
-            ensure value_type, v
-            , "Value supplied needs to be of type: #{value_type}"
-            add k
-            , v
-        else if its "non_empty_string", key
-          ensure.not "defined", value
-          , "Invalid type of value supplied for key: #{key}"
-          resource[key]
+          mins.push null
+      if its "non_empty_string", args[i]
+        func_identifier = args[i]
+        i++
+      if its "boolean", args[i]
+        no_inside = args[i]
+        i++
+      unless no_inside
+        if func_identifier
+          ensure.inside func_identifier, arr
         else
-          error text "Invalid argument format" , arguments
-
-  _.mixin
-    initialDefined: ->
-      [ arr ] = _.match arguments
-                , [ "array" ]
-                , 1
-                , "_.initialDefined"
-      i = 0
-      i++ while its "defined", arr[i]
-      arr[0...i]
-
-    onlyDefined: ->
-      [ arr ] = _.match arguments
-                , [ "array" ]
-                , 1
-                , "_.onlyDefined"
-      _.filter arr
-      , (v)-> its "defined", v
-
-    objectify: ->
-      [ keys, values, value_type, ignore_exceptions ] =
-        _.match arguments
-        , [ "array"
-            "array"
-            [ "string"
-              "array"  ]
-            "boolean" ]
-        , 1
-        , "_.objectify"
-      obj = {}
-      if not values
-        combined = keys
-        keys = _.filter combined
-        , (v, i)-> i % 2 is 0
-        values = _.filter combined
-        , (v, i)-> i % 2 is 1
-
-      for key, i in keys
-        ensure "string", key
-        , "Key to objectify must be a string"
+          ensure.inside "match", arguments
+      ensure "defined", arr
+      , -> "Need an array of arguments: #{json arr}"
+      arr = _.toArray arr if its "arguments", arr
+      matched = []
+      for spec, index in specs
+        matched = matcher arr, spec
         ok = true
-        if value_type
-          ensure "type", value_type
-          , "Invalide value type"
-          ok =
-            if ignore_exceptions is true
-              its value_type, values[i]
-            else
-              ensure value_type, values[i]
-              , "Value no. #{i} not of type: #{value_type}"
-        obj[key] = values[i] if ok
-      obj
+        if mins[index]
+          for i in [0...mins[index]]
+            if (arr[i] isnt matched[i]) or
+               (i >= arr.length)
+              ok = false
+              break
+        break if ok
+      if not ok
+        str = "Invalid arguments"
+        str += " to #{func_identifier}" if func_identifier
+        str += "\nArguments: #{json arr}"
+        if specs.length is 1
+          str += "\nShould've been: #{json specs[0]}"
+          str += "\nwith minimum initial arguments: #{mins[0]}" if mins[0]?
+        else if specs.length > 1
+          str += "\nShould've been one of: #{json specs}"
+          str += "\nwith minimum initial arguments: #{json mins}"
+        ensure.error str
+      if specs.length > 1
+        [ index ].concat matched
+      else
+        matched
+    fn
+  )()
 
-    breakApart: ->
-      [ obj, key_name, value_name, allow_undefined ] =
-        _.match arguments
-        , [ "object"
-            "string"
-            "string"
-            "boolean" ]
-        , 1
-        , "_.breakApart"
-      key_name or= "key"
-      value_name or= "value"
-      keys = _.keys obj
-      _.onlyDefined _.map keys
-                    , (key)->
-                        if allow_undefined is true or
-                           its "defined", obj[key]
-                          o = {}
-                          o[key_name] = key
-                          o[value_name] = obj[key]
-                          o
+_.mixin
+  keyValueAdder: ->
+    [ resource, value_type, func_identifier, overwrite, callback ] =
+      _.match arguments
+      , [ "object"
+          [ "non_empty_string"
+            "array" ]
+          "non_empty_string"
+          "boolean"
+          "function" ]
+      , 2
+      , "key_value_adder"
 
-    sum: ->
-      [ num_arr ] = _.match arguments
-                    , [ "array" ]
-                    , 1
-                    , "_.sum"
-      sum = (total, num)->
-        ensure "number", num
-        , "Only numbers can be summed"
-        total + num
+    text = (msg, args)->
+      msg += "\n#{func_identifier}\n#{json args}" if func_identifier?
+      msg
 
-      _.reduce num_arr, sum, 0
+    add = (key, value)->
+      if (its "object", resource[key]) and
+         (its "object", value)
+        _.extend resource[key]
+        , value
+      else if resource[key]? and not overwrite
+        ensure.error text "Key already exists: #{key}"
+      else
+        resource[key] = value
+      callback key, value if callback?
+      true
 
-    printable: (thing)->
-      if its "string", thing
-        _.titleize _.humanize thing
-      else if its "number", thing
-        "#{thing}"
-      else if its "array", thing
-        _.map thing
-        , (item)->
-          _.printable item
-      else if its "object", thing
-        _.map (_.keys thing)
-        , (key)->
+    confirmAndAdd = (key, value) ->
+      if its value_type, value
+        add key, value
+      else if its "function", value
+        v = value key
+        ensure value_type, v
+        , -> "Supplied function returned an invalid value: #{json v}"
+        add key, v
+      else
+        ensure.error text "Value supplied (#{json value}) needs to be of type: #{json value_type}"
+
+    (key, value)->
+      ensure.inside (func_identifier or "some key-value adder"), arguments
+      if its "non_empty_string", key
+        if value?
+          confirmAndAdd key, value
+        else
+          resource[key]
+      else if its "array", key
+        for k in key
+          ensure "non_empty_string", k
+          , -> "Key must be a string: #{json key}"
+          confirmAndAdd k, value
+      else if its "object", key
+        for own k, v of key
+          confirmAndAdd k, v
+      else
+        ensure.error text "Invalid argument format", arguments
+
+_.mixin
+  initialDefined: ->
+    [ arr ] = _.match arguments, [ "array" ], 1, "_.initialDefined"
+    i = 0
+    i++ while arr[i]?
+    arr[0...i]
+  truthy: ->
+    [ arr ] = _.match arguments, [ "array" ], 1, "_.truthy"
+    _.filter arr, _.identity
+
+  sum: ->
+    [ num_arr ] = _.match arguments, [ "array" ], 1, "sum"
+    sum = (total, num)->
+      ensure "number", num
+      , -> "Only numbers can be summed. Not a number: #{json num}"
+      total + num
+    _.reduce num_arr, sum, 0
+  evenOdd: ->
+    [ arr ] = _.match arguments, [ "array" ], 1, "evenOdd"
+    [ (v for v in arr[0..] by 2)
+      (v for v in arr[1..] by 2) ]
+
+_.mixin
+  objectify: ->
+    [ keys, values, value_type, ensure_type ] =
+      _.match arguments
+      , [ "array"
+          "array"
+          [ "string"
+            "array"  ]
+          "boolean" ]
+      , 1
+      , "objectify"
+    obj = {}
+    if not values
+      [ keys, values ] = _.evenOdd keys
+    for key, i in keys
+      ensure "string", key
+      , -> "Key to objectify must be a string: #{json key}"
+      ok = true
+      if value_type
+        ensure "type", value_type
+        , -> "Invalid value type: #{json value_type}"
+        ok =
+          if ensure_type
+            ensure value_type, values[i]
+            , -> "#{json values[i]} should've been of type: #{json value_type}"
+          else
+            its value_type, values[i]
+      obj[key] = values[i] if ok
+    obj
+
+  breakApart: ->
+    [ obj, key_name, value_name, allow_undefined ] =
+      _.match arguments
+      , [ "object"
+          "string"
+          "string"
+          "boolean" ]
+      , 1
+      , "_.breakApart"
+    key_name ?= "key"
+    value_name ?= "value"
+    keys = _.keys obj
+    objs = _.map keys
+           , (key)->
+               if obj[key]? or allow_undefined 
+                 o = {}
+                 o[key_name] = key
+                 o[value_name] = obj[key]
+                 o
+    _.compact objs
+
+_.mixin
+  printable: (thing)->
+    if its "string", thing
+      _s.titleize _s.humanize thing
+    else if its "number", thing
+      "#{thing}"
+    else if its "array", thing
+      _.map thing
+      , _.printable
+    else if its "object", thing
+      _.map (_.keys thing)
+      , (key)->
           field: key
           value: _.printable thing[key]
+    else
+      ""
 
-    date: (d)->
-      ensure [ "date", "integer" ], d
-      if its "integer", d
-        d = new Date d
-      months = ["Jan","Feb","Mar","Apr","May","Jun"
-               ,"Jul","Aug","Sep","Oct","Nov","Dec"]
-      "#{d.getDate()} #{months[d.getMonth()]} #{d.getFullYear()}"
-    time: (d, lower_case)->
-      ensure [ "date", "integer" ], d
-      if its "integer", d
-        d = new Date d
-      hour = d.getHours()
-      minutes = d.getMinutes()
-      ampm = "AM"
-      ampm = "PM" if hour > 11
-      ampm = ampm.toLowerCase() if lower_case is true
-      hour -= 12 if hour > 12
-      hour = 12 if hour is 0
-      "#{hour}:#{if minutes < 10 then "0" else ""}#{minutes} #{ampm}"
+  keywords: (arg) ->
+    breakString = (str) ->
+      if its "string", str
+        str = str.toLowerCase()
+        _.filter (_s.words str.replace /[^A-Za-z0-9]/g, " ")
+        , (word)-> word.length > 2
+      else if its "boolean", str
+        "#{str}"
+      else if its "number", str
+        _.keywords "#{str}"
+      else
+        []
+    if its "array", arg
+      _.uniq _.flatten _.map arg
+                       , _.keywords
+    else if its "object", arg
+      _.uniq _.flatten [ _.keywords _.keys arg
+                         _.keywords _.values arg ]
+    else
+      breakString arg
 
-    self: (arg)-> arg
-
-    findValue: ->
-      [ fields, doc, nextDoc, allow_invalid, replace ] =
-        _.match arguments
-        , [ "array"
-            "object"
-            "function"
-            "boolean"
-            "function" ]
-        , 2
-        , "_.findValue"
-      nextDoc or= _.self
-      current_doc = doc
-      for field, index in fields
+  findValue: ->
+    [ fields, doc, nextDoc, allow_invalid, replace ] =
+      _.match arguments
+      , [ "array"
+          "object"
+          "function"
+          "boolean"
+          "function" ]
+      , 2
+      , "_.findValue"
+    nextDoc ?= _.identity
+    current_doc = doc
+    for field, i in fields
+      ensure "defined", current_doc
+      , -> "findValue#nextDoc returned nothing"
+      if "." in field
+        path = field.split "."
+        current_value = _.findValue (field.split ".")
+                        , current_doc
+                        , true
+      else
+        field = (+field) if its "numeric", field
         current_value = current_doc[field]
-        if its "defined", current_value
-          if fields.length > index + 1
-            current_doc = nextDoc current_value, field
-        else
-          unless allow_invalid
-            ensure.error "Path #{fields[0..index].join "."} " +
-              "doesn't exist in doc:\n#{json doc}"
-          break
-      current_value = replace current_value if replace
-      current_value
+      if current_value?
+        if fields.length > i + 1
+          current_doc = nextDoc current_value, field
+      else
+        unless allow_invalid
+          ensure.error ->
+            "Value #{fields[0..i].join " -> "} doesn't exist for doc:\n#{json doc}"
+        break
+    current_value = replace current_value if replace
+    current_value
 
-    keywords: (->
-      breakString = (str)->
-        if its "string", str
-          str = str.toLowerCase()
-          _.filter (_.words str.replace /[^A-Za-z0-9]/g, " ")
-          , (word)-> word.length > 2
-        else if its "boolean", str
-          "#{str}"
-        else if its "number", str
-          _.keywords "#{str}"
-        else
-          []
-      (arg)->
-        if its "string", arg
-          breakString arg
-        else if its "array", arg
-          _.uniq _.flatten _.map arg
-                           , (item)->
-                             breakString item
-        else if its "object", arg
-          _.uniq _.flatten [ _.keywords _.keys arg
-                             _.keywords _.values arg ]
-    )()
-
-)(_.log, _.json, _.ensure, _.ensure.test, _.ensure.inside, _.ensure.error)
