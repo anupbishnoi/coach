@@ -1,5 +1,14 @@
+all_subscriptions_loaded = false
+subscriptions_onComplete =
+  _.after Collection.list().length
+  , ->
+      all_subscriptions_loaded = true
+      jasmine.getEnv().addReporter(new jasmine.ConsoleReporter());
+      jasmine.getEnv().execute()
+      UserDetails()
+
 # Subscriptions
-Meteor.subscribe name for name in Collection.list()
+Meteor.subscribe name, subscriptions_onComplete for name in Collection.list()
 
 # App stuff
 DocFilter.addSearchable
@@ -53,15 +62,14 @@ DocMap.add
 # Session
 Meteor.session = Session
 Session = (->
-  Ensure.types "session_look_in_editing"
-  , name: "whether look_in menu is being edited"
-  , check: (editing)-> its "boolean", editing
+  types =
+    look_in_editing: "boolean"
+    search_query: "string"
+    user_details: "object"
 
-  Ensure.types "session_query"
-  , name: "session variable for search query"
-  , check: (query)-> its "string", query
-
-  keys = []
+  _.each types, (type, name) ->
+    Ensure.types "session_#{name}"
+    , (v) -> its type, v
 
   fn = ->
     [ key, value ] =
@@ -69,65 +77,64 @@ Session = (->
       , [ "non_empty_string"
           null ]
       , 1
-      , "session"
+      , "Session"
+
+    Ensure "defined", types[key]
+    , "No such session variable: #{key}"
 
     if value?
       Ensure "session_#{key}", value
-      , "Invalid value specified for '#{key}': #{Json value}" +
-        "\nShould have been of type: session_#{key}"
-      keys.push key
+      , -> "Invalid value specified for '#{key}': #{Json value}" +
+           "\nShould have been of type: session_#{key}"
       Meteor.session.set key, value
     else
       value = Meteor.session.get key
       Ensure "session_#{key}", value
-      , "Invalid value stored in session variable '#{key}': #{Json value}"
+      , -> "Invalid value stored in session variable '#{key}': #{Json value}"
       value
-
-  fn.all = -> Objectify keys
-              , (Meteor.session.get(k) for k in keys)
   fn
 )()
 
+# Startup
+Session "look_in_editing", no
+Session "search_query", ""
+Session "user_details", {}
 
 # User
 UserDetails = ->
+  user_details = Session "user_details"
+  return user_details if not _.isEmpty user_details
+
+  return {} if not all_subscriptions_loaded
   user_doc = Find "person/9"
-  view_as = Get "role.0", user_doc
-  Ensure "type", view_as
-  , -> "Invalid role (#{Json view_as}) in user doc:\n#{Json user_doc}"
+  view_as = Get "role.0", user_doc, true
   role_doc = Find view_as
   Ensure "object", role_doc
   , -> "Role document not found for: #{Json user_doc}"
-  search_for_list = Get "can_search_for", role_doc
-  Ensure "array", search_for_list
-  , -> "No searchable types specified for: #{Json role_doc}"
+  view_as_type = Str.uptilFirst "/", view_as
+  Ensure view_as_type, view_as
+  , -> "Invalid role (#{Json view_as}) in user doc:\n#{Json user_doc}"
+  search_for_list = Get "can_search_for", role_doc, true
   for item in search_for_list
     Ensure "type", item
-    , -> "'#{item}' not a valid type to search_for"
+    , -> "'#{item}' not a valid type to search for, in role doc: #{Json role_doc}"
   search_for = Get "ui.search_for", role_doc
-  look_in_selected = Get "ui.look_in.selected", role_doc
-  look_in_order_obj = Get "ui.look_in.order", role_doc
-  Ensure "object", look_in_order_obj
-  , -> "No look_in.order specified for role doc: #{Json role_doc}"
-  look_in_order = look_in_order_obj[search_for]
-  Ensure "array", look_in_order
-  , -> "No look_in.order for #{search_for} in: #{Json role_doc}"
   search_for ?= "student"
+  look_in_selected = Get "ui.look_in.selected", role_doc
   look_in_selected ?= []
+  look_in_order_obj = Get "ui.look_in.order", role_doc, true
+  look_in_order = look_in_order_obj[search_for]
   look_in_order ?= [ "batch"
                      "group" ]
-  { user_doc, view_as, role_doc, search_for
-    search_for_list, look_in_selected, look_in_order }
-
-
-# Startup
-Session "look_in_editing", false
-Session "query", ""
+  user_details = { user_doc, view_as, view_as_type, role_doc, search_for
+                   search_for_list, look_in_selected, look_in_order }
+  Session "user_details", user_details
+  user_details
 
 AppRouter = Backbone.Router.extend
   routes:
     "navigate/*query": "navigate"
-  navigate: (query)->
+  navigate: (query) ->
     parts = query.split "/"
     [ keys, values ] = Arr.evenOdd parts
     parsed = Arr.objectify keys
@@ -138,5 +145,3 @@ Router = null
 Meteor.startup ->
   Router = new AppRouter()
   Backbone.history.start pushState: true
-
-  jasmine.getEnv().execute()

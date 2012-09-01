@@ -1,53 +1,45 @@
-Collection.add [
-  "doc_type"
+Collection.add  [ "doc_type"
 
-  "org"
-  "center"
-  "batch"
-  "due_installment"
-  "group"
-  "room"
-  "subject"
-  "topic"
-  "study_material_type"
-  "study_material"
+                  "org"
+                  "center"
+                  "batch"
+                  "due_installment"
+                  "group"
+                  "room"
+                  "subject"
+                  "topic"
+                  "study_material_type"
+                  "study_material"
 
-  "person"
-  "center_head"
-  "vendor"
-  "center_staff"
-  "center_staff_in_out"
-  "center_coordinator"
-  "teacher"
-  "applicant"
-  "applicant_discount"
-  "applicant_receipt"
-  "student"
-  "student_discount"
-  "student_receipt"
-  "accrual"
-  "refund"
+                  "person"
+                  "center_head"
+                  "center_manager"
+                  "vendor"
+                  "center_staff"
+                  "center_staff_in_out"
+                  "center_coordinator"
+                  "teacher"
+                  "applicant"
+                  "applicant_discount"
+                  "applicant_receipt"
+                  "student"
+                  "student_discount"
+                  "student_receipt"
+                  "accrual"
+                  "refund"
 
-  "question"
-  "solution"
-  "question_paper"
-  "admission_test"
+                  "question"
+                  "solution"
+                  "question_paper"
+                  "admission_test"
 
-  "study_class"
-  "absent"
+                  "study_class"
+                  "absent"
 
-  "duty_type"
-  "center_coordinator_duty" ]
-  , (name) ->
-      coll = new Meteor.Collection name
-      Ensure.types name
-      , (doc_id)->
-          Ensure [ "non_empty_string", "object" ], doc_id
-          , -> "Invalid doc_id/object (#{Json doc_id}) to the check function of: #{name}"
-          (Find name, doc_id: (doc_id.doc_id or doc_id))?
-      coll
+                  "duty_type"
+                  "center_coordinator_duty" ]
 
-Find.addParent
+DocIdfy.addParent
   "org": "doc_type"
   "center": "org"
   "batch": "org"
@@ -95,15 +87,19 @@ Find.addDefaults (
 Find.addDefaults (
   _.difference Collection.list()
   , [ "doc_type"
-     "person"
-     "center_staff_in_out"
-     "applicant_discount"
-     "applicant_receipt"
-     "student_discount"
-     "student_receipt"
-     "accrual"
-     "refund"
-     "absent" ]
+      "person"
+      "center_staff_in_out"
+      "applicant_discount"
+      "applicant_receipt"
+      "student_discount"
+      "student_receipt"
+      "question"
+      "solution"
+      "question_paper"
+      "admission_test"
+      "accrual"
+      "refund"
+      "absent" ]
 ), active: true
 
 Get.addAlternate [
@@ -118,14 +114,14 @@ Get.addAlternate [
 
 Get.addField
   "doc_type":
-    doc_name: (doc)-> _.printable doc.doc_id
+    doc_name: (doc) -> Str.printable doc.id
 
   "student":
-    due_installment: (doc)->
+    due_installment: (doc) ->
       receipts = Find "student_receipt"
-      , student: doc.doc_id
+                 , student: doc.doc_id
       dues = Find "due_installment"
-      , batch: doc.batch
+             , batch: doc.batch
       if dues.length is 0
         due = 0
       else if receipts.length is 0
@@ -139,25 +135,26 @@ Get.addField
         for r in receipts
           Ensure "integer", r.amount
           , "Receipt document must have an integer amount field"
-        due = (_.sum _.pluck dues, "amount") -
-              (_.sum _.pluck receipts, "amount")
+        due = (Arr.sum _.pluck dues, "amount") -
+              (Arr.sum _.pluck receipts, "amount")
       due > 0 and due
 
-    last_paid_on: (doc)->
-  receipt = Find.one "student_receipt"
-      , { student: doc.doc_id }
-      , { sort: on: 1 }
+    last_paid_on: (doc) ->
+      receipt = Find.one "student_receipt"
+                , { student: doc.doc_id }
+                , { sort: on: 1 }
       (moment receipt.on).format("D MMM YYYY") if receipt?.on?
 
   "study_class":
-    topic_and_id: (doc)->
+    topic_and_id: (doc) ->
       name = Get "topic/doc_name"
              , doc
+             , true
       "#{name} - #{doc.id}"
-    from_and_to: (doc)->
+    from_and_to: (doc) ->
       { from, to } = doc
       "#{(moment from).format("D MMM YYYY")}" +
         ", #{(moment from).format("h:mm A") } - #{(moment to).format("h:mm A")}"
-    subject_and_batch: (doc)->
-      "#{Get "subject/doc_name", doc}, #{Get "batch/doc_name", doc}"
+    subject_and_batch: (doc) ->
+      "#{Get "subject/doc_name", doc, true}, #{Get "batch/doc_name", doc, true}"
 

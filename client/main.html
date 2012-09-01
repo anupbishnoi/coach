@@ -46,7 +46,7 @@
   <table id="result_list" class="table table-striped">
     <tbody>
       {{#each item}}
-      <tr>
+      <tr class="animated fadeIn">
         <td>
           <div>
             <div class="pull-right span4 actions">
@@ -82,7 +82,7 @@
           </div>
         </td>
       </tr>
-        {{/each}}
+      {{/each}}
       </tbody>
     </table>
   {{/if}}
@@ -103,7 +103,7 @@
         </a>
         <a class="brand" href="/home" title="Vidyamandir Classes">Vidyamandir</a>
         <div class="nav-collapse">
-          <ul class="nav">
+          <ul class="nav navigation-menu">
             <li class="active">
               <a href="#">Search</a>
             </li>
@@ -131,9 +131,9 @@
     <hr>
     <ul class="nav nav-tabs nav-stacked">
       {{#each item}}
-        <li class="{{ui_active}}">
+        <li class="{{ui_active}}" id ="search_for:{{doc_id}}">
           <a class="item" href="#">
-            {{type_name}}
+            {{doc_name}}
           </a>
         </li>
       {{/each}}
@@ -143,44 +143,67 @@
 
 <template name="look_in">
   <div id="look_in" class="animated fadeInLeftBig">
-    <a class="btn btn-small edit_button">
+    {{#if editing}}
+    <a class="btn btn-mini btn-primary edit_ok_button">
+      <i class="icon-ok"></i>
+    </a>
+    {{else}}
+    <a class="btn btn-mini edit_button">
       <i class="icon-edit"></i>
     </a>
+    {{/if}}
     <h3>Look in</h3>
-    {{#if any}}
-      {{> look_in_selected}}
-      {{> look_in_options}}
+    <hr>
+    {{#if editing}}
+      {{> look_in_edit}}
+    {{else}}
+      {{#if any}}
+        {{> look_in_selected}}
+        {{> look_in_options}}
+      {{/if}}
     {{/if}}
   </div>
 </template>
 
+<template name="look_in_edit">
+  {{#if any}}
+  <ul class="nav nav-pills nav-stacked animated fadeIn look_in_edit">
+    {{#each item}}
+    <li id="look_in_edit:{{doc_id}}">
+      <a class="edit" href="#">
+        {{doc_name}}
+      </a>
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+</template>
+
 <template name="look_in_selected">
   {{#if any}}
-    <hr>
-    <ul class="nav nav-tabs nav-stacked look_in_selected">
-      {{#each item}}
-      <li class="animated fadeInUp" id={{doc_id}}>
-        <a class="selected" href="#">
-          {{doc_name}}
-        </a>
-      </li>
-      {{/each}}
-    </ul>
+  <ul class="nav nav-tabs nav-stacked look_in_selected">
+    {{#each item}}
+    <li class="animated fadeInUp" id="look_in_selected:{{doc_id}}">
+      <a class="selected" href="#">
+        {{doc_name}}
+      </a>
+    </li>
+    {{/each}}
+  </ul>
   {{/if}}
 </template>
 
 <template name="look_in_options">
   {{#if any}}
-    <hr>
-    <ul class="nav nav-pills nav-stacked look_in_options">
-      {{#each item}}
-      <li class="animated fadeInDown" id={{doc_id}}>
-        <a class="option" href="#">
-          {{doc_name}}
-        </a>
-      </li>
-      {{/each}}
-    </ul>
+  <ul class="nav nav-pills nav-stacked look_in_options">
+    {{#each item}}
+    <li class="animated fadeInDown" id="look_in_options:{{doc_id}}">
+      <a class="option" href="#">
+        {{doc_name}}
+      </a>
+    </li>
+    {{/each}}
+  </ul>
   {{/if}}
 </template>
 
