@@ -1,106 +1,137 @@
-Collection.add  [ "doc_type"
+Collection.add  [
+  "doc_type"
 
-                  "org"
-                  "center"
-                  "batch"
-                  "due_installment"
-                  "group"
-                  "room"
-                  "subject"
-                  "topic"
-                  "study_material_type"
-                  "study_material"
+  "org"
+  "center"
+  "batch"
+  "due_installment"
+  "group"
+  "room"
+  "subject"
+  "topic"
+  "study_material_type"
+  "study_material"
+  "rank_range"
 
-                  "person"
-                  "center_head"
-                  "center_manager"
-                  "vendor"
-                  "center_staff"
-                  "center_staff_in_out"
-                  "center_coordinator"
-                  "teacher"
-                  "applicant"
-                  "applicant_discount"
-                  "applicant_receipt"
-                  "student"
-                  "student_discount"
-                  "student_receipt"
-                  "accrual"
-                  "refund"
+  "person"
+  "center_head"
+  "center_manager"
+  "vendor"
+  "center_staff"
+  "center_staff_in_out"
+  "center_coordinator"
+  "teacher"
+  "applicant"
+  "applicant_discount"
+  "applicant_receipt"
+  "student"
+  "student_discount"
+  "student_receipt"
+  "accrual"
+  "refund"
 
-                  "question"
-                  "solution"
-                  "question_paper"
-                  "admission_test"
+  "question"
+  "solution"
+  "admission_test"
+  "admission_test_attempt"
+  "batch_test"
+  "batch_test_attempt"
+  "group_test"
+  "group_test_attempt"
 
-                  "study_class"
-                  "absent"
+  "marks_type"
+  "batch_test_marks"
+  "group_test_marks"
+  "admission_test_marks"
 
-                  "duty_type"
-                  "center_coordinator_duty" ]
+  "study_class"
+  "absent"
+
+  "duty_type"
+  "center_coordinator_duty"
+]
 
 DocIdfy.addParent
-  "org": "doc_type"
-  "center": "org"
-  "batch": "org"
-  "due_installment": "batch"
-  "group": ["center", "batch"]
-  "room": "center"
-  "subject": "org"
-  "topic": "subject"
-  "study_material_type": "org"
-  "study_material": [
-    "batch"
-    "subject"
-    "study_material_type"
-  ]
-  "center_head": "center"
-  "center_manager": "center"
-  "vendor": "org"
-  "center_staff": "center"
-  "center_staff_in_out": "center_staff"
-  "center_coordinator": "center"
-  "teacher": "org"
-  "applicant": "admission_test"
-  "applicant_discount": "applicant"
-  "applicant_receipt": "applicant"
-  "student": "org"
-  "student_discount": "student"
-  "student_receipt": "student"
-  "accrual": "student"
-  "refund": "student"
-  "question": ["subject", "teacher"]
-  "question_paper": "teacher"
-  "admission_test": "batch"
-  "study_class": ["group", "topic"]
-  "absent": "study_class"
-  "duty_type": "org"
-  "center_coordinator_duty": ["center_coordinator", "duty_type"]
+  "org":                       "doc_type"
+  "center":                    "org"
+  "batch":                     "org"
+  "due_installment":           "batch"
+  "group":                     [ "center", "batch" ]
+  "room":                      "center"
+  "subject":                   "org"
+  "topic":                     "subject"
+  "study_material_type":       "org"
+  "study_material":            [ "batch", "subject", "study_material_type" ]
+  "batch_test_type":           "org"
+  "batch_test":                [ "batch", "batch_test_type" ]
+  "group_test":                [ "group", "subject" ]
+  "admission_test":            "batch"
+  "center_head":               "center"
+  "center_manager":            "center"
+  "vendor":                    "org"
+  "center_staff":              "center"
+  "center_staff_in_out":       "center_staff"
+  "center_coordinator":        "center"
+  "teacher":                   "org"
+  "applicant":                 "admission_test"
+  "applicant_discount":        "applicant"
+  "applicant_receipt":         "applicant"
+  "student":                   "org"
+  "student_discount":          "student"
+  "student_receipt":           "student"
+  "accrual":                   "student"
+  "refund":                    "student"
+  "question":                  [ "subject", "teacher" ]
+  "question_paper":            "teacher"
+  "study_class":               [ "group", "topic" ]
+  "absent":                    "study_class"
+  "duty_type":                 "org"
+  "center_coordinator_duty":   [ "center_coordinator", "duty_type" ]
 
-Find.addDefaults (
+Find.addDefault (
   _.difference Collection.list()
   , [ "doc_type"
      "org"
      "person" ]
-), org: "vmc"    #mark disgusting!
+), org: "vmc"    #todo later: disgusting!
 
-Find.addDefaults (
-  _.difference Collection.list()
-  , [ "doc_type"
-      "person"
-      "center_staff_in_out"
-      "applicant_discount"
-      "applicant_receipt"
-      "student_discount"
-      "student_receipt"
-      "question"
-      "solution"
-      "question_paper"
-      "admission_test"
-      "accrual"
-      "refund"
-      "absent" ]
-), active: true
+Find.addDefault [
+  "group"
+  "room"
+  "center_head"
+  "center_manager"
+  "vendor"
+  "center_staff"
+  "center_coordinator"
+  "teacher"
+], active: true
+
+Find.addSelectorFilter
+  "student":
+    "rank_range": (selector) ->
+      [ selector ] = Match arguments, [ "object" ], 1
+                     , "Find.addFilter#student#rank_range"
+      for type in [ "batch", "group", "admission" ]
+        test_type = "#{type}_test"
+        if selector[test_type]?
+          test = selector[test_type]
+          break
+      if not test?
+        Ensure.error "rank_range (#{Json selector.rank_range}) also needs" +
+          "a Test (batch/group/admission) in: #{Json selector}"
+      { from, to } = Find selector.rank_range, true
+      (student) ->
+        marks_selector = {}
+        marks_selector[test_type] = selector[test_type]
+        marks_selector.id = student.id
+        marks = Get "marks"
+                , (Find "#{test_type}_marks", marks_selector, true)
+                , true
+        true if from <= marks <= to
+
+  "rank_range": -> {}
+  "subject": -> {}
+  
 
 Get.addAlternate [
   "center_head"
@@ -157,4 +188,49 @@ Get.addField
         ", #{(moment from).format("h:mm A") } - #{(moment to).format("h:mm A")}"
     subject_and_batch: (doc) ->
       "#{Get "subject/doc_name", doc, true}, #{Get "batch/doc_name", doc, true}"
+
+QueryFilter.addSearchable
+  "student": [ "id"
+               "doc_name"
+               "email"
+               "phone"
+               "address"
+               "center/doc_name"
+               "center/id"
+               "org/doc_name"
+               "batch/doc_name"
+               "batch/id" ]
+  "study_class": [ "center/doc_name"
+                   "center/id"
+                   "batch/doc_name"
+                   "batch/id"
+                   "group/doc_name"
+                   "subject/doc_name"
+                   "topic/doc_name"
+                   "teacher/doc_name"
+                   "room/doc_name" ]
+
+DocMap.add
+  "result_list/student/center_manager":
+    identification:
+      main:         "doc_name"
+      secondary:    "id"
+      more:         [ "phone", "address" ]
+    information:
+      "Center":      "center/doc_name"
+      "Group":       "group/doc_name"
+      "Due":         "due_installment"
+      "Last Paid":   "last_paid_on"
+    action:  [ "'pay_installment'" ]
+
+  "result_list/study_class/center_manager":
+    identification:
+      main:        "topic_and_id"
+      secondary:   "teacher/doc_name"
+      more:        [ "from_and_to", "subject_and_batch" ]
+    information:
+      "Center":   "center/doc_name"
+      "Group":    "group/doc_name"
+      "Room":     "room/doc_name"
+    action:  [ "'nothing'" ]
 

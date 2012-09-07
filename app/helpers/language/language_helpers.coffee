@@ -339,8 +339,10 @@ Match = (->
     unless no_inside
       if func_identifier
         Ensure.inside func_identifier, arr
+        Log in: func_identifier, with: arr if debug
       else
         Ensure.inside "Match", arguments
+        Log in: "Match", with: arguments if debug
     Ensure "defined", arr
     , -> "Need an array of arguments: #{Json arr}"
     matched = []
@@ -370,6 +372,11 @@ Match = (->
       [ index ].concat matched
     else
       matched
+
+  debug = no
+  fn.debug = -> debug = yes
+  fn.debug.stop = -> debug = no
+
   fn
 )()
 

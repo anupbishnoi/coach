@@ -5,6 +5,7 @@ beforeEach ->
       its expected, this.actual
 
 # Language Helpers
+
 describe "Json", ->
   it "stringifies numbers", ->
     expect(Json 9).toBe("9")
@@ -26,6 +27,7 @@ describe "Json", ->
 
   it "ugly prints objects, with a flag", ->
     expect(Json haha:"yess", true).toBe("{\"haha\":\"yess\"}")
+
 
 describe "Ensure", ->
   it "returns true when a type condition is satisfied", ->
@@ -89,6 +91,7 @@ describe "Match", ->
               , [ "positive_integer", "non_empty_string", "function", "boolean" ]
     expect(matched).toEqual([ 1, "hello", null, true ])
 
+
 describe "KeyValueAdder", ->
   it "returns a function that can take in key-value pairs with a specified value type 
   and attach the pair to a passed resource", ->
@@ -97,6 +100,7 @@ describe "KeyValueAdder", ->
     [ key, value ] = [ "key", "value" ]
     add key, value
     expect(resource[key]).toBe(value)
+
 
 describe "Arr", ->
   it ".initialDefined() returns array values until a null or undefined", ->
@@ -116,11 +120,13 @@ describe "Arr", ->
   corresponding values taken from arrays passed as arguments", ->
     expect(Arr.objectify [ "key" ], [ "value" ]).toEqual("key": "value")
 
+
 describe "Obj", ->
   it ".breakApart() returns an array of objects with key and value fields
   for each key-value pair of original object", ->
     expect(Obj.breakApart { "key1": "value1", "key2": "value2" }, "K", "V")
       .toEqual([ { "K": "key1", "V": "value1" }, { "K": "key2", "V": "value2" } ])
+
 
 describe "Keywords", ->
   it "returns a list of keywords (alpha-numeric words of minimum length 3),
@@ -146,6 +152,7 @@ describe "Collection", ->
     Collection.reset "test"
     expect(noOfDocs()).toBe(0)
 
+
 describe "Find", ->
   it "returns the document with the supplied doc_id", ->
     (Collection "test").insert doc_id: "test/loji", doc_type: "test"
@@ -157,13 +164,23 @@ describe "Find", ->
     it "when the first argument is the collection name and the second argument is the selector", ->
       expect(Find "test", doc_id: "test/loji").toBeType("object")
 
+  it "throws if Find was passed enforce_found as true and the document wasn't found", ->
+    expect(-> Find "lalala/lololo", true).toThrow()
+
+
 describe "Get", ->
   it "returns the value of the specified field in the doc passed in", ->
     (Collection "test").insert doc_id: "test/yoyoyo", doc_type: "test", obj: arr: [ ref: "test/nonono" ]
     (Collection "test").insert doc_id: "test/nonono", doc_type: "test", value: text: "Hadippa!"
     expect(Get "obj.arr.0.ref/value.text", Find "test/yoyoyo").toBe("Hadippa!")
 
+
 describe "Update", ->
+  it "updates the given doc with the specified mongo modifier", ->
+    expect((Find "test/nonono").value.text).toBe("Hadippa!")
+    Update (Find "test/nonono")
+    , $set: "value.text": "Harappa."
+    expect((Find "test/nonono").value.text).toBe("Harappa.")
 
 
 describe "DocIdfy", ->
@@ -185,6 +202,7 @@ describe "DocIdfy", ->
               , subject: "subject/vmc/physics"
               , study_class: "study_class/[group/[center/vmc/pp].[batch/vmc/12p2005]/1].[topic/vmc/physics/f_and_m]/2" )
 
+
 describe "DocMap", ->
   it ".add() a doc map with a specification object against a key", ->
     expect(-> DocMap.add "test_map", group: field: [ "'constant'", "doc_type", value: "obj.arr.0.ref/value.text" ])
@@ -192,8 +210,15 @@ describe "DocMap", ->
 
   it "returns all docs mapped to new values using the provided specification", ->
     expect(DocMap "test_map", [ Find "test/yoyoyo" ])
-      .toEqual([ group: field: [ "constant", "test", value: "Hadippa!" ] ])
+      .toEqual([ group: field: [ "constant", "test", value: "Harappa." ] ])
 
-describe "DocFilter", ->
-  it ".addSearchables() to specify searchable values in documents of a particular doc_type", ->
+
+describe "QueryFilter", ->
+  it ".addSearchable() to specify searchable values in documents of a particular doc_type", ->
+    expect(-> QueryFilter.addSearchable "test": [ "value.text" ])
+      .not.toThrow()
+
+  it "returns a function that matches (with AND predicate) the passed doc with the query specified to QueryFilter", ->
+    expect(_.filter [ (Find "test/yoyoyo"), (Find "test/nonono") ], QueryFilter "harappa")
+      .toEqual([ Find "test/nonono" ])
     

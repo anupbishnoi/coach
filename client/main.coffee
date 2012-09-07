@@ -10,54 +10,6 @@ subscriptions_onComplete =
 # Subscriptions
 Meteor.subscribe name, subscriptions_onComplete for name in Collection.list()
 
-# App stuff
-DocFilter.addSearchable
-  "student": [ "id"
-               "doc_name"
-               "email"
-               "phone"
-               "address"
-               "center/doc_name"
-               "center/id"
-               "org/doc_name"
-               "batch/doc_name"
-               "batch/id" ]
-  "study_class": [ "center/doc_name"
-                   "center/id"
-                   "batch/doc_name"
-                   "batch/id"
-                   "group/doc_name"
-                   "subject/doc_name"
-                   "topic/doc_name"
-                   "teacher/doc_name"
-                   "room/doc_name" ]
-
-DocMap.add
-  "result_list/student/center_manager":
-    identification:
-      main: "doc_name"
-      secondary: "id"
-      more: [ "phone"
-              "address" ]
-    information:
-      "Center": "center/doc_name"
-      "Group": "group/doc_name"
-      "Due": "due_installment"
-      "Last Paid": "last_paid_on"
-    action: [ "'pay_installment'" ]
-
-  "result_list/study_class/center_manager":
-    identification:
-      main: "topic_and_id"
-      secondary: "teacher/doc_name"
-      more: [ "from_and_to"
-              "subject_and_batch" ]
-    information:
-      "Center": "center/doc_name"
-      "Group": "group/doc_name"
-      "Room": "room/doc_name"
-    action: [ "'nothing'" ]
-
 
 # Session
 Meteor.session = Session
@@ -101,35 +53,60 @@ Session "search_query", ""
 Session "user_details", {}
 
 # User
-UserDetails = ->
-  user_details = Session "user_details"
-  return user_details if not _.isEmpty user_details
+UserDetails = (->
+  fn = ->
+    user_details = Session "user_details"
+    return user_details if not _.isEmpty user_details
 
-  return {} if not all_subscriptions_loaded
-  user_doc = Find "person/9"
-  view_as = Get "role.0", user_doc, true
-  role_doc = Find view_as
-  Ensure "object", role_doc
-  , -> "Role document not found for: #{Json user_doc}"
-  view_as_type = Str.uptilFirst "/", view_as
-  Ensure view_as_type, view_as
-  , -> "Invalid role (#{Json view_as}) in user doc:\n#{Json user_doc}"
-  search_for_list = Get "can_search_for", role_doc, true
-  for item in search_for_list
-    Ensure "type", item
-    , -> "'#{item}' not a valid type to search for, in role doc: #{Json role_doc}"
-  search_for = Get "ui.search_for", role_doc
-  search_for ?= "student"
-  look_in_selected = Get "ui.look_in.selected", role_doc
-  look_in_selected ?= []
-  look_in_order_obj = Get "ui.look_in.order", role_doc, true
-  look_in_order = look_in_order_obj[search_for]
-  look_in_order ?= [ "batch"
-                     "group" ]
-  user_details = { user_doc, view_as, view_as_type, role_doc, search_for
-                   search_for_list, look_in_selected, look_in_order }
-  Session "user_details", user_details
-  user_details
+    return {} if not all_subscriptions_loaded
+    user_doc = Find "person/9"
+    view_as = Get "role.0", user_doc, true
+    role_doc = Find view_as, true
+    view_as_type = Str.uptilFirst "/", view_as
+    Ensure view_as_type, view_as
+    , -> "Invalid role (#{Json view_as}) in user doc:\n#{Json user_doc}"
+    search_for_list = Get "can_search_for", role_doc, true
+    for item in search_for_list
+      Ensure "type", item
+      , -> "'#{item}' not a valid type to search for, in role doc: #{Json role_doc}"
+
+    ui_options = Get "ui", role_doc
+    if its.not "object", ui_options
+      ui_options ?= {}
+      Update role_doc
+      , "ui": ui_options
+    search_for = Get "ui.search_for", role_doc
+    if not search_for?
+      search_for ?= "student"
+      ui_options.search_for = search_for
+
+    look_in_selected = Get "ui.look_in_selected", role_doc
+    if not look_in_selected?
+      ui_options.look_in_selected = look_in_selected = {}
+
+    selected = look_in_selected[search_for]
+    if not selected?
+      ui_options.look_in_selected[search_for] = selected = []
+
+    look_in_order = Get "ui.look_in_order", role_doc
+    if not look_in_order?
+      ui_options.look_in_order = look_in_order = {}
+
+    order = look_in_order[search_for]
+    if not order?
+      ui_options.look_in_order[search_for] = order = [ "batch", "group" ]
+
+    Update role_doc
+    , $set: "ui": ui_options
+
+    user_details = { user_doc, view_as, view_as_type, role_doc, search_for
+                     search_for_list, look_in_selected, look_in_order }
+    Session "user_details", user_details
+    user_details
+
+  fn.refresh = -> Session "user_details", {}
+  fn
+)()
 
 AppRouter = Backbone.Router.extend
   routes:

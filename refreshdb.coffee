@@ -1,273 +1,41 @@
 refreshDb = ->
+  Log "Resetting Collections:"
   Collection.reset.all()
 
-  Log "Resetting Collections:"
   Log "> Meta"
-  (Collection "doc_type").insert
-    doc_id: "doc_type/org"
-
-    doc_type: "doc_type"
-    id: "org"
-  org = Find "doc_type/org"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center"
-
-    doc_type: "doc_type"
-    id: "center"
-  center = Find "doc_type/center"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/batch"
-
-    doc_type: "doc_type"
-    id: "batch"
-  batch = Find "doc_type/batch"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/due_installment"
-
-    doc_type: "doc_type"
-    id: "due_installment"
-  due_installment = Find "doc_type/due_installment"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/group"
-
-    doc_type: "doc_type"
-    id: "group"
-  group = Find "doc_type/group"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/room"
-
-    doc_type: "doc_type"
-    id: "room"
-  room = Find "doc_type/room"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/subject"
-
-    doc_type: "doc_type"
-    id: "subject"
-  subject = Find "doc_type/subject"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/topic"
-
-    doc_type: "doc_type"
-    id: "topic"
-  topic = Find "doc_type/topic"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/study_material_type"
-
-    doc_type: "doc_type"
-    id: "study_material_type"
-  study_material_type = Find "doc_type/study_material_type"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/study_material"
-
-    doc_type: "doc_type"
-    id: "study_material"
-  study_material = Find "doc_type/study_material"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/person"
-
-    doc_type: "doc_type"
-    id: "person"
-  person = Find "doc_type/person"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_head"
-
-    doc_type: "doc_type"
-    id: "center_head"
-  center_head = Find "doc_type/center_head"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_manager"
-
-    doc_type: "doc_type"
-    id: "center_manager"
-  center_manager = Find "doc_type/center_manager"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/vendor"
-
-    doc_type: "doc_type"
-    id: "vendor"
-  vendor = Find "doc_type/vendor"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_staff"
-
-    doc_type: "doc_type"
-    id: "center_staff"
-  center_staff = Find "doc_type/center_staff"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_coordinator"
-
-    doc_type: "doc_type"
-    id: "center_coordinator"
-  center_coordinator = Find "doc_type/center_coordinator"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/teacher"
-
-    doc_type: "doc_type"
-    id: "teacher"
-  teacher = Find "doc_type/teacher"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_staff_in_out"
-
-    doc_type: "doc_type"
-    id: "center_staff_in_out"
-  center_staff_in_out = Find "doc_type/center_staff_in_out"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/applicant"
-
-    doc_type: "doc_type"
-    id: "applicant"
-  applicant = Find "doc_type/applicant"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/applicant_discount"
-
-    doc_type: "doc_type"
-    id: "applicant_discount"
-  applicant_discount = Find "doc_type/applicant_discount"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/applicant_receipt"
-
-    doc_type: "doc_type"
-    id: "applicant_receipt"
-  applicant_receipt = Find "doc_type/applicant_receipt"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/student"
-
-    doc_type: "doc_type"
-    id: "student"
-  student = Find "doc_type/student"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/student_discount"
-
-    doc_type: "doc_type"
-    id: "student_discount"
-  student_discount = Find "doc_type/student_discount"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/student_receipt"
-
-    doc_type: "doc_type"
-    id: "student_receipt"
-  student_receipt = Find "doc_type/student_receipt"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/accrual"
-
-    doc_type: "doc_type"
-    id: "accrual"
-  accrual = Find "doc_type/accrual"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/refund"
-
-    doc_type: "doc_type"
-    id: "refund"
-  refund = Find "doc_type/refund"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/question"
-
-    doc_type: "doc_type"
-    id: "question"
-  question = Find "doc_type/question"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/solution"
-
-    doc_type: "doc_type"
-    id: "solution"
-  solution = Find "doc_type/solution"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/question_paper"
-
-    doc_type: "doc_type"
-    id: "question_paper"
-  question_paper = Find "doc_type/question_paper"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/admission_test"
-
-    doc_type: "doc_type"
-    id: "admission_test"
-  admission_test = Find "doc_type/admission_test"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/study_class"
-
-    doc_type: "doc_type"
-    id: "study_class"
-  study_class = Find "doc_type/study_class"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/absent"
-
-    doc_type: "doc_type"
-    id: "absent"
-  absent = Find "doc_type/absent"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/duty_type"
-
-    doc_type: "doc_type"
-    id: "duty_type"
-  duty_type = Find "doc_type/duty_type"
-
-  (Collection "doc_type").insert
-    doc_id: "doc_type/center_coordinator_duty"
-
-    doc_type: "doc_type"
-    id: "center_coordinator_duty"
-  center_coordinator_duty = Find "doc_type/center_coordinator_duty"
+  for type in Collection.list()
+    (Collection "doc_type").insert
+      doc_id: "doc_type/#{type}"
+      doc_type: "doc_type"
+      id: type
+
+  C = (id) -> Find "doc_type/#{id}"
 
   Log "> Main"
   (Collection "org").insert
     doc_id: "org/vmc"
 
-    doc_type: org.id
+    doc_type: C("org").id
     id: "vmc"
 
     doc_name: "Vidyamandir Classes"
-    active: true
   vmc = Find "org/vmc"
 
   (Collection "center").insert
     doc_id: "center/vmc/pp"
 
-    doc_type: center.id
+    doc_type: C("center").id
     org: vmc.doc_id
     id: "pp"
 
     doc_name: "Pitampura"
     address: "3rd Floor, Aggarwal Corporate Heights, NSP"
-    active: true
   pp = Find "center/vmc/pp"
 
   (Collection "batch").insert
     doc_id: "batch/vmc/12p2005"
 
-    doc_type: batch.id
+    doc_type: C("batch").id
     org: vmc.doc_id
     id: "12p2005"
 
@@ -276,39 +44,36 @@ refreshDb = ->
     duration: "1 year"
     fee: 125000
     accrual_per_month: 125000/10 # accrual stops end of march, classes almost over
-    active: true
   xiip05 = Find "batch/vmc/12p2005"
 
   (Collection "due_installment").insert
     doc_id: "due_installment/vmc/12p2005/1"
 
-    doc_type: due_installment.id
+    doc_type: C("due_installment").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     id: "1"
 
     amount: 110000
     on: (moment.utc [2004, 11, 31, 18]).valueOf()
-    active: true
   due1 = Find "due_installment/vmc/12p2005/1"
 
   (Collection "due_installment").insert
     doc_id: "due_installment/vmc/12p2005/2"
 
-    doc_type: due_installment.id
+    doc_type: C("due_installment").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     id: "2"
 
     amount: 15000
     on: (moment.utc [2005, 2, 31, 18]).valueOf()
-    active: true
   due2 = Find "due_installment/vmc/12p2005/2"
 
   (Collection "group").insert
     doc_id: "group/[center/vmc/pp].[batch/vmc/12p2005]/1"
 
-    doc_type: group.id
+    doc_type: C("group").id
     org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
@@ -321,7 +86,7 @@ refreshDb = ->
   (Collection "group").insert
     doc_id: "group/[center/vmc/pp].[batch/vmc/12p2005]/2"
 
-    doc_type: group.id
+    doc_type: C("group").id
     org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
@@ -334,7 +99,7 @@ refreshDb = ->
   (Collection "room").insert
     doc_id: "room/vmc/pp/3"
     
-    doc_type: room.id
+    doc_type: C("room").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "3"
@@ -348,31 +113,29 @@ refreshDb = ->
   (Collection "subject").insert
     doc_id: "subject/vmc/physics"
 
-    doc_type: subject.id
+    doc_type: C("subject").id
     org: vmc.doc_id
     id: "physics"
 
     doc_name: "Physics"
     public: true
-    active: true
   physics = Find "subject/vmc/physics"
 
   (Collection "subject").insert
     doc_id: "subject/vmc/chemistry"
 
-    doc_type: subject.id
+    doc_type: C("subject").id
     org: vmc.doc_id
     id: "chemistry"
 
     doc_name: "Chemistry"
     public: true
-    active: true
   chemistry = Find "subject/vmc/chemistry"
 
   (Collection "topic").insert
     doc_id: "topic/vmc/physics/force_and_momentum"
 
-    doc_type: topic.id
+    doc_type: C("topic").id
     org: vmc.doc_id
     subject: physics.doc_id
     id: "force_and_momentum"
@@ -380,24 +143,22 @@ refreshDb = ->
     doc_name: "Force and Momentum"
     level: "advanced" # could make a TopicLevel object
     public: true
-    active: true
   f_and_m = Find "topic/vmc/physics/force_and_momentum"
 
   (Collection "study_material_type").insert
     doc_id: "study_material_type/vmc/module"
 
-    doc_type: study_material_type.id
+    doc_type: C("study_material_type").id
     org: vmc.doc_id
     id: "module"
 
     doc_name: "Module"
-    active: true
   module = Find "study_material_type/vmc/module"
 
   (Collection "study_material").insert
     doc_id: "study_material/[batch/vmc/12p2005].[subject/vmc/physics].[study_material_type/vmc/module]/1"
 
-    doc_type: study_material.id
+    doc_type: C("study_material").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     subject: physics.doc_id
@@ -407,14 +168,38 @@ refreshDb = ->
     doc_name: "Physics - Module 1"
     contents: [ f_and_m.doc_id ]
     scanned: []
-    active: true
   physics_module = Find "study_material/[batch/vmc/12p2005].[subject/vmc/physics].[study_material_type/vmc/module]/1"
+
+  (Collection "rank_range").insert
+    doc_id: "rank_range/vmc/top50"
+
+    doc_type: C("rank_range").doc_id
+    org: vmc.doc_id
+    id: "top50"
+
+    doc_name: "Top 50"
+    from: 1
+    to: 50
+  top100 = Find "rank_range/vmc/top50"
+
+  (Collection "rank_range").insert
+    doc_id: "rank_range/vmc/top100"
+
+    doc_type: C("rank_range").doc_id
+    org: vmc.doc_id
+    id: "top100"
+    from: 1
+    to: 100
+
+    doc_name: "Top 100"
+  top100 = Find "rank_range/vmc/top100"
+
 
   Log "> Personnel"
   (Collection "person").insert
     doc_id: "person/1"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "1"
 
     doc_name: "Sandeep Mehta"
@@ -427,7 +212,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/2"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "2"
 
     doc_name: "Pradeep Singh"
@@ -439,7 +224,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/3"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "3"
 
     doc_name: "Sujeet Shivhare"
@@ -452,7 +237,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/4"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "4"
 
     doc_name: "Ajay Pathak"
@@ -465,7 +250,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/5"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "5"
 
     doc_name: "Deepak"
@@ -477,7 +262,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/6"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "6"
 
     doc_name: "Divik Jain"
@@ -490,7 +275,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/7"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "7"
 
     doc_name: "Anirudh Mendiratta"
@@ -503,7 +288,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/8"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "8"
 
     doc_name: "Anup Bishnoi"
@@ -519,7 +304,7 @@ refreshDb = ->
   (Collection "person").insert
     doc_id: "person/9"
 
-    doc_type: person.id
+    doc_type: C("person").id
     id: "9"
 
     doc_name: "Madan Lal"
@@ -533,7 +318,7 @@ refreshDb = ->
   (Collection "center_head").insert
     doc_id: "center_head/vmc/pp/1"
 
-    doc_type: center_head.id
+    doc_type: C("center_head").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "1"
@@ -546,7 +331,7 @@ refreshDb = ->
   (Collection "center_manager").insert
     doc_id: "center_manager/vmc/pp/1"
 
-    doc_type: center_manager.id
+    doc_type: C("center_manager").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "1"
@@ -559,17 +344,18 @@ refreshDb = ->
                       "teacher"  ]
     ui:
       search_for: "student"
-      look_in:
-        order:
-          "student": [ "batch"
-                       "group" ]
-        selected: [ "batch/vmc/12p2005" ]
+      look_in_order:
+        "student": [ "batch"
+                     "group" ]
+        "study_class": [ "group" ]
+      look_in_selected:
+        "student": [ "batch/vmc/12p2005" ]
   madan_manager = Find "center_manager/vmc/pp/1"
 
   (Collection "vendor").insert
     doc_id: "vendor/vmc/1"
 
-    doc_type: vendor.id
+    doc_type: C("vendor").id
     org: vmc.doc_id
     id: "1"
 
@@ -581,7 +367,7 @@ refreshDb = ->
   (Collection "center_staff").insert
     doc_id: "center_staff/vmc/pp/1"
 
-    doc_type: center_staff.id
+    doc_type: C("center_staff").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "1"
@@ -596,7 +382,7 @@ refreshDb = ->
   (Collection "center_staff_in_out").insert
     doc_id: "center_staff_in_out/vmc/pp/1/1"
 
-    doc_type: center_staff_in_out.id
+    doc_type: C("center_staff_in_out").id
     org: vmc.doc_id
     center: pp.doc_id
     center_staff: deepak_staff.doc_id
@@ -609,7 +395,7 @@ refreshDb = ->
   (Collection "center_coordinator").insert
     doc_id: "center_coordinator/vmc/pp/1"
 
-    doc_type: center_coordinator.id
+    doc_type: C("center_coordinator").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "1"
@@ -621,7 +407,7 @@ refreshDb = ->
   (Collection "center_coordinator").insert
     doc_id: "center_coordinator/vmc/pp/2"
 
-    doc_type: center_coordinator.id
+    doc_type: C("center_coordinator").id
     org: vmc.doc_id
     center: pp.doc_id
     id: "2"
@@ -633,7 +419,7 @@ refreshDb = ->
   (Collection "teacher").insert
     doc_id: "teacher/vmc/1"
     
-    doc_type: teacher.id
+    doc_type: C("teacher").id
     org: vmc.doc_id
     id: "1"
 
@@ -646,7 +432,7 @@ refreshDb = ->
   (Collection "teacher").insert
     doc_id: "teacher/vmc/2"
     
-    doc_type: teacher.id
+    doc_type: C("teacher").id
     org: vmc.doc_id
     id: "2"
 
@@ -659,11 +445,11 @@ refreshDb = ->
   (Collection "applicant").insert
     doc_id: "applicant/vmc/12p2005/1/pp3010"
 
-    doc_type: applicant.id
+    doc_type: C("applicant").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     # because admission_test hasn't been initialised yet
-    admission_test: "admission_test/vmc/12p2005/1" # repeated thrice in this file
+    admission_test: "admission_test/vmc/12p2005/1"
     id: "pp3010"
 
     center: pp.doc_id # enrollment center
@@ -676,13 +462,12 @@ refreshDb = ->
       center: pp.doc_id # registration center
       slot: "1"
       discount: "20%"
-    active: true
   anup_applicant = Find "applicant/vmc/12p2005/1/pp3010"
 
   (Collection "applicant_discount").insert
     doc_id: "applicant_discount/vmc/12p2005/1/pp3010/1"
 
-    doc_type: applicant_discount.id
+    doc_type: C("applicant_discount").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     admission_test: "admission_test/vmc/12p2005/1"
@@ -700,7 +485,7 @@ refreshDb = ->
   (Collection "applicant_receipt").insert
     doc_id: "applicant_receipt/vmc/12p2005/1/pp3010/1"
 
-    doc_type: applicant_receipt.id
+    doc_type: C("applicant_receipt").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     admission_test: "admission_test/vmc/12p2005/1"
@@ -716,7 +501,7 @@ refreshDb = ->
   (Collection "student").insert
     doc_id: "student/vmc/12p05zz1234"
 
-    doc_type: student.id
+    doc_type: C("student").id
     org: vmc.doc_id
     id: "12p05zz1234"
 
@@ -725,13 +510,12 @@ refreshDb = ->
     group: xiip1.doc_id # can be an array
     applicant: anup_applicant.doc_id
     person: anup_person.doc_id
-    active: true
   anup_student = Find "student/vmc/12p05zz1234"
 
   (Collection "student_discount").insert
     doc_id: "student_discount/vmc/12p05zz1234/1"
 
-    doc_type: student_discount.id
+    doc_type: C("student_discount").id
     org: vmc.doc_id
     student: anup_student.doc_id
     id: "1"
@@ -748,7 +532,7 @@ refreshDb = ->
   (Collection "student_receipt").insert
     doc_id: "student_receipt/vmc/12p05zz1234/1"
 
-    doc_type: student_receipt.id
+    doc_type: C("student_receipt").id
     org: vmc.doc_id
     student: anup_student.doc_id
     id: "1"
@@ -769,7 +553,7 @@ refreshDb = ->
   (Collection "accrual").insert
     doc_id: "accrual/vmc/12p05zz1234/1"
 
-    doc_type: accrual.id
+    doc_type: C("accrual").id
     org: vmc.doc_id
     student: anup_student.doc_id
     id: "1"
@@ -783,7 +567,7 @@ refreshDb = ->
   (Collection "accrual").insert
     doc_id: "accrual/vmc/12p05zz1234/2"
 
-    doc_type: accrual.id
+    doc_type: C("accrual").id
     org: vmc.doc_id
     student: anup_student.doc_id
     id: "2"
@@ -797,7 +581,7 @@ refreshDb = ->
   (Collection "refund").insert
     doc_id: "refund/vmc/12p05zz1234/1"
 
-    doc_type: refund.id
+    doc_type: C("refund").id
     org: vmc.doc_id
     student: anup_student.doc_id
     id: "1"
@@ -813,7 +597,7 @@ refreshDb = ->
   (Collection "question").insert
     doc_id: "question/[subject/vmc/physics].[teacher/vmc/1]/350"
 
-    doc_type: question.id
+    doc_type: C("question").id
     org: vmc.doc_id
     subject: physics.doc_id
     teacher: anirudh_teacher.doc_id
@@ -829,10 +613,10 @@ refreshDb = ->
   (Collection "solution").insert
     doc_id: "solution/[subject/vmc/physics].[teacher/vmc/1]/350/2"
 
-    doc_type: solution.id
+    doc_type: C("solution").id
     org: vmc.doc_id
     subject: physics.doc_id
-    question: question.doc_id
+    question: question1.doc_id
     id: "2"
 
     teacher: anirudh_teacher.doc_id
@@ -840,21 +624,10 @@ refreshDb = ->
     # no public declaration, hence the solution is private
   solution1 = Find "solution/[subject/vmc/physics].[teacher/vmc/1]/350/2"
 
-  (Collection "question_paper").insert
-    doc_id: "question_paper/vmc/1/359"
-
-    doc_type: question_paper.id
-    org: vmc.doc_id
-    teacher: anirudh_teacher.doc_id
-    id: "359"
-
-    questions: []
-  q_paper = Find "question_paper/vmc/1/359"
-
   (Collection "admission_test").insert
     doc_id: "admission_test/vmc/12p2005/1"
 
-    doc_type: admission_test.id
+    doc_type: C("admission_test").id
     org: vmc.doc_id
     batch: xiip05.doc_id
     id: "1"
@@ -866,14 +639,67 @@ refreshDb = ->
     sections: [] # marking scheme and total marks are part of sections
     instructions: []
     styling: {}
-    question_paper: question_paper.doc_id
+    questions: [ question1.doc_id ]
   adm_test = Find "admission_test/vmc/12p2005/1"
+
+  (Collection "admission_test_attempt").insert
+    doc_id: "admission_test_attempt/vmc/12p2005/1/12p05zz1234"
+
+    org: vmc.doc_id
+    admission_test: adm_test.doc_id
+    id: "12p05zz1234"
+
+    answers: [ "A" ]
+  answer_sheet1 = Find "admission_test_attempt/vmc/12p2005/1/12p05zz1234"
+
+  Log "> Marks"
+  (Collection "marks_type").insert
+    doc_id: "marks_type/vmc/total"
+
+    doc_type: C("marks_type").id
+    org: vmc.doc_id
+    id: "total"
+
+    doc_name: "Total Marks"
+  marks_total = Find "marks_type/vmc/total"
+
+  (Collection "marks_type").insert
+    doc_id: "marks_type/vmc/physics"
+
+    doc_type: C("marks_type").id
+    org: vmc.doc_id
+    id: "physics"
+
+    doc_name: "Marks in Physics"
+  marks_physics = Find "marks_type/vmc/physics"
+
+  (Collection "marks_type").insert
+    doc_id: "marks_type/vmc/tough_questions"
+
+    doc_type: C("marks_type").id
+    org: vmc.doc_id
+    id: "tough_questions"
+
+    doc_name: "Marks in Tough Questions"
+  marks_tough = Find "marks_type/vmc/tough_questions"
+
+  (Collection "admission_test_marks").insert
+    doc_id: "admission_test_marks/[admission_test/vmc/12p2005/1].[marks_type/vmc/total]/12p05zz1234"
+
+    doc_type: C("admission_test_marks").id
+    admission_test: adm_test.doc_id
+    marks_type: marks_total.doc_id
+    id: "12p05zz1234"
+
+    marks: 180
+    org: vmc.doc_id
+  adm_test_marks = Find "admission_test_marks/[admission_test/vmc/12p2005/1].[marks_type/vmc/total]/12p05zz1234"
 
   Log "> Classes"
   (Collection "study_class").insert
     doc_id: "study_class/[group/[center/vmc/pp].[batch/vmc/12p2005]/1].[topic/vmc/physics/force_and_momentum]/1"
 
-    doc_type: study_class.id
+    doc_type: C("study_class").id
     org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
@@ -885,14 +711,13 @@ refreshDb = ->
     from: (moment.utc [2004, 4, 20, 15, 30]).valueOf()
     to: (moment.utc [2004, 4, 20, 18, 30]).valueOf()
     teacher: anirudh_teacher.doc_id
-    room: room.doc_id
-    active: true
+    room: room_3.doc_id
   class1 = Find "study_class/[group/[center/vmc/pp].[batch/vmc/12p2005]/1].[topic/vmc/physics/force_and_momentum]/1"
 
   (Collection "study_class").insert
     doc_id: "study_class/[group/[center/vmc/pp].[batch/vmc/12p2005]/2].[topic/vmc/physics/force_and_momentum]/1"
 
-    doc_type: study_class.id
+    doc_type: C("study_class").id
     org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
@@ -904,14 +729,13 @@ refreshDb = ->
     from: (moment.utc [2004, 4, 21, 15, 30]).valueOf()
     to: (moment.utc [2004, 4, 21, 18, 30]).valueOf()
     teacher: anirudh_teacher.doc_id
-    room: room.doc_id
-    active: true
+    room: room_3.doc_id
   class2 = Find "study_class/[group/[center/vmc/pp].[batch/vmc/12p2005]/2].[topic/vmc/physics/force_and_momentum]/1"
 
   (Collection "absent").insert
     doc_id: "absent/[group/[center/vmc/pp].[batch/vmc/12p2005]/1].[topic/vmc/physics/force_and_momentum]/1/1"
 
-    doc_type: absent.id
+    doc_type: C("absent").id
     org: vmc.doc_id
     center: pp.doc_id
     batch: xiip05.doc_id
@@ -930,34 +754,31 @@ refreshDb = ->
   (Collection "duty_type").insert
     doc_id: "duty_type/vmc/print"
 
-    doc_type: duty_type.id
+    doc_type: C("duty_type").id
     org: vmc.doc_id
     id: "print"
-    active: true
   print = Find "duty_type/vmc/print"
 
   (Collection "duty_type").insert
     doc_id: "duty_type/vmc/arrange"
 
-    doc_type: duty_type.id
+    doc_type: C("duty_type").id
     org: vmc.doc_id
     id: "arrange"
-    active: true
   arrange = Find "duty_type/vmc/arrange"
 
   (Collection "duty_type").insert
     doc_id: "duty_type/vmc/distribute"
 
-    doc_type: duty_type.id
+    doc_type: C("duty_type").id
     org: vmc.doc_id
     id: "distribute"
-    active: true
   distribute = Find "duty_type/vmc/distribute"
 
   (Collection "center_coordinator_duty").insert
     doc_id: "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/print]/1"
 
-    doc_type: center_coordinator_duty.id
+    doc_type: C("center_coordinator_duty").id
     org: vmc.doc_id
     center_coordinator: sujeet_coordinator.doc_id
     duty_type: print.doc_id
@@ -967,14 +788,13 @@ refreshDb = ->
     center: pp.doc_id
     on: class1.from
     done: false
-    active: true
   duty_print = Find "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/print]/1"
 
   # one time duty
   (Collection "center_coordinator_duty").insert
     doc_id: "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/arrange]/2"
 
-    doc_type: center_coordinator_duty.id
+    doc_type: C("center_coordinator_duty").id
     org: vmc.doc_id
     center_coordinator: sujeet_coordinator.doc_id
     duty_type: arrange.doc_id
@@ -988,13 +808,12 @@ refreshDb = ->
     room: class1.room
     vendor: psingh_vendor.doc_id
     done: false
-    active: true
   duty_arrange = Find "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/arrange]/2"
 
   (Collection "center_coordinator_duty").insert
     doc_id: "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/distribute]/1"
 
-    doc_type: center_coordinator_duty.id
+    doc_type: C("center_coordinator_duty").id
     org: vmc.doc_id
     center_coordinator: sujeet_coordinator.doc_id
     duty_type: distribute.doc_id
@@ -1007,7 +826,6 @@ refreshDb = ->
     study_class: class1.doc_id
     on: class1.from
     done: false
-    active: true
   duty_distribute = Find "center_coordinator_duty/[center_coordinator/vmc/pp/2].[duty_type/vmc/distribute]/1"
 
   Log "Collections reset."

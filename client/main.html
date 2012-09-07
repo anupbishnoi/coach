@@ -14,7 +14,7 @@
         {{> look_in}}
       </div>
       <div class="span8">
-        <div class="well animated fadeInDownBig" id="search_bar">
+        <div class="well" id="search_bar">
           <div class="row">
             <div class="input-prepend input-append span7">
               {{> filter_menu}}
@@ -46,7 +46,7 @@
   <table id="result_list" class="table table-striped">
     <tbody>
       {{#each item}}
-      <tr class="animated fadeIn">
+      <tr class="">
         <td>
           <div>
             <div class="pull-right span4 actions">
@@ -93,7 +93,7 @@
 </template>
 
 <template name="top_bar">
-  <div class="navbar navbar-fixed-top animated fadeInDownBig">
+  <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
       <div class="container">
         <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
@@ -126,7 +126,7 @@
 </template>
 
 <template name="search_for">
-  <div id="search_for" class="animated fadeInRightBig">
+  <div id="search_for" class="">
     <h3>Search For</h3>
     <hr>
     <ul class="nav nav-tabs nav-stacked">
@@ -142,7 +142,7 @@
 </template>
 
 <template name="look_in">
-  <div id="look_in" class="animated fadeInLeftBig">
+  <div id="look_in" class="">
     {{#if editing}}
     <a class="btn btn-mini btn-primary edit_ok_button">
       <i class="icon-ok"></i>
@@ -167,7 +167,7 @@
 
 <template name="look_in_edit">
   {{#if any}}
-  <ul class="nav nav-pills nav-stacked animated fadeIn look_in_edit">
+  <ul class="nav nav-pills nav-stacked look_in_edit">
     {{#each item}}
     <li id="look_in_edit:{{doc_id}}">
       <a class="edit" href="#">
@@ -183,7 +183,7 @@
   {{#if any}}
   <ul class="nav nav-tabs nav-stacked look_in_selected">
     {{#each item}}
-    <li class="animated fadeInUp" id="look_in_selected:{{doc_id}}">
+    <li class="" id="look_in_selected:{{doc_id}}">
       <a class="selected" href="#">
         {{doc_name}}
       </a>
@@ -197,7 +197,7 @@
   {{#if any}}
   <ul class="nav nav-pills nav-stacked look_in_options">
     {{#each item}}
-    <li class="animated fadeInDown" id="look_in_options:{{doc_id}}">
+    <li class="" id="look_in_options:{{doc_id}}">
       <a class="option" href="#">
         {{doc_name}}
       </a>

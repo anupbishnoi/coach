@@ -1,32 +1,33 @@
-Template.look_in_edit.events =
-  "click .edit": -> false #mark
+Template.look_in_edit.events
+  "click .edit": -> false #todo later:
 
-Template.look_in_selected.events =
+Template.look_in_selected.events
   "click .selected": ->
     Ensure.inside "Template.look_in_selected.events#click .selected"
-    { look_in_selected, role_doc } = UserDetails()
-    index = _.indexOf look_in_selected, Get "doc_id", this
+    { role_doc, look_in_selected, search_for } = UserDetails()
+    index = _.indexOf look_in_selected[search_for], Get "doc_id", this
     Ensure "false", index is -1
     , -> "Invalid doc_id in (#{Json this}), no match in ui.look_in.selected of role doc: #{Json role_doc}"
+    look_in_selected[search_for] = look_in_selected[search_for][0...index]
     Update role_doc
-    , "ui.look_in.selected"
-    , look_in_selected[0...index]
+    , $set: "ui.look_in_selected": look_in_selected
+    UserDetails.reset()
     false
     
-Template.look_in_options.events =
+Template.look_in_options.events
   "click .option": ->
-    { look_in_selected, role_doc } = UserDetails()
-    look_in_selected.push Get "doc_id", this, true
+    { role_doc, look_in_selected, search_for } = UserDetails()
+    look_in_selected[search_for] ?= []
+    look_in_selected[search_for].push Get "doc_id", this, true
     Update role_doc
-    , "ui.look_in.selected"
-    , look_in_selected
+    , $set: "ui.look_in_selected": look_in_selected
+    UserDetails.reset()
     false
-    #mark
-Template.search_input.events =
+
+Template.search_input.events
   "keypress #search_input": (e) ->
     switch e.which
       when 13, 32# , 8, 20, 40, 46 # Enter/Space/Backspace/Delete
-        Log "lo"
         search_query = $(e.currentTarget).val()
         Session "search_query"
         , search_query
@@ -37,11 +38,10 @@ Template.search_input.events =
       else
         true
 
-Template.search_for.events =
+Template.search_for.events
   "click .item": ->
     { role_doc } = UserDetails()
-    search_for = Str.uptilFirst "/", Get "doc_id", this, true
     Update role_doc
-    , "ui.search_for"
-    , search_for
+    , $set: "ui.search_for": (Get "id", this, true)
+    UserDetails.reset()
     false
