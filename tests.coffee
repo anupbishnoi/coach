@@ -82,8 +82,6 @@ describe "Ensure", ->
     expect(Ensure.stack 1).toBe("inside: #{func_name}\nwith: [\n  1,\n  2\n]")
     Ensure.stack.forget(1)
 
-  #todo: Tests for Ensure.types
-
 describe "Match", ->
   it "returns an array matching a specification, matching things in the specification
   left to right, placing null in places with no matching argument", ->
