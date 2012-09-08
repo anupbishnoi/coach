@@ -1,5 +1,7 @@
 Template.look_in_edit.events
-  "click .edit": -> false #todo later:
+  "click .edit": ->
+    #todo later:
+    false
 
 Template.look_in_selected.events
   "click .selected": ->
