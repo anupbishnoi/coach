@@ -165,6 +165,8 @@ describe "Find", ->
   it "throws if Find was passed enforce_found as true and the document wasn't found", ->
     expect(-> Find "lalala/lololo", true).toThrow()
 
+  it "is idempotent", ->
+    expect(Find Find "test/loji").toEqual(Find "test/loji")
 
 describe "Get", ->
   it "returns the value of the specified field in the doc passed in", ->
@@ -220,3 +222,5 @@ describe "QueryFilter", ->
     expect(_.filter [ (Find "test/yoyoyo"), (Find "test/nonono") ], QueryFilter "harappa")
       .toEqual([ Find "test/nonono" ])
     
+
+describe 

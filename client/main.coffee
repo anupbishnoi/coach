@@ -104,7 +104,7 @@ UserDetails = (->
     Session "user_details", user_details
     user_details
 
-  fn.refresh = -> Session "user_details", {}
+  fn.reset = -> Session "user_details", {}
   fn
 )()
 

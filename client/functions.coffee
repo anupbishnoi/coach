@@ -105,7 +105,7 @@ Template.look_in_options.helpers
     { look_in_selected, look_in_order, search_for } = UserDetails()
     if look_in_selected?[search_for]?.length and
        look_in_order?[search_for]?.length and
-       look_in_order.length > look_in_selected.length
+       look_in_order[search_for].length > look_in_selected[search_for].length
       order = look_in_order[search_for]
       selected = look_in_selected[search_for]
       (Find.one order[selected.length]

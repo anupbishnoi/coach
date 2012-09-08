@@ -1,3 +1,4 @@
+flag = false
 DocIdfy = (->
   parent_types = {}
   
@@ -242,7 +243,7 @@ Find = (->
       when 3
         { doc_id, doc_type } = arg1
         what = if doc_id? then Str.uptilFirst "/", doc_id else doc_type
-        selector = _.clone arg1
+        selector = if doc_id? then { doc_id } else _.clone arg1
         enforce_found = arg2
         filters = [ arg3, arg4 ].concat filters
     filters = _.filter (_.flatten filters), (func) -> its "function", func
@@ -277,14 +278,16 @@ Find = (->
       ret = (_.filter ret, func) for func in filters
     if enforce_found
       Ensure.not "empty", ret
-      , -> "No #{what} documents found for the passed selector"
+      , -> "No #{what} documents found for the passed selector" +
+             (if filters.length > 0 then "" else ": #{Json selector}")
     ret
 
   fn.one = ->
     [ index, what, selector, options, enforce_found, filters ] =
       checkSanityIn ".one" , arguments
     ret = [ (Collection what).findOne selector, options ]
-    ret = (_.filter ret, func) for func in filters
+    for func in filters
+      ret = (_.filter ret, func) if its.not "empty", ret
     if enforce_found
       Ensure.not "empty", ret
       , -> "No #{what} documents were found for the passed selector"
@@ -309,6 +312,7 @@ Find = (->
       docs = fn what, selector, options, enforce_found, filters
       Ensure "true", docs.length > 0 or not enforce_found
       , -> "No #{what} document was found for given selector"
+      docs.length
     else
       fn.cursor(what, selector, options).count()
 
