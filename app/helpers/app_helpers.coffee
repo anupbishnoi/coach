@@ -253,17 +253,20 @@ Find = (->
     unless allow_invalid_collection
       Ensure "defined", (Collection what)
       , -> "Invalid thing to be searching for: #{what}"
-    if default_mappings[what]?
-      _.defaults selector, default_mappings[what]
-    DocIdfy selector
 
     if its "function", selector_filters[what]
+      { doc_id } = selector
       selector = selector_filters[what](selector)
+      _.defaults selector, { doc_id } if doc_id?
     else if its "object", selector_filters[what]
       for own field of selector
         if its "function", selector_filters[what][field]
           filters.push selector_filters[what][field](selector)
           delete selector[field]
+
+    if default_mappings[what]?
+      _.defaults selector, default_mappings[what]
+    DocIdfy selector
     [ index, what, selector, options, enforce_found, filters ]
 
   fn = ->
