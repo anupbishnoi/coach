@@ -222,5 +222,3 @@ describe "QueryFilter", ->
     expect(_.filter [ (Find "test/yoyoyo"), (Find "test/nonono") ], QueryFilter "harappa")
       .toEqual([ Find "test/nonono" ])
     
-
-describe 

@@ -7,7 +7,7 @@ Template.look_in_selected.events
     { role_doc, look_in_selected, search_for } = UserDetails()
     index = _.indexOf look_in_selected[search_for], Get "doc_id", this
     Ensure "false", index is -1
-    , -> "Invalid doc_id in (#{Json this}), no match in ui.look_in.selected of role doc: #{Json role_doc}"
+    , -> "Invalid doc_id in (#{Json this}), no match in ui.look_in_selected of role doc: #{Json role_doc}"
     look_in_selected[search_for] = look_in_selected[search_for][0...index]
     Update role_doc
     , $set: "ui.look_in_selected": look_in_selected

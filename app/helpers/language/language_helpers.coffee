@@ -164,6 +164,11 @@ Ensure = (->
     else if xor (inverse isnt true), (types[type].check value)
       new e exception_type
 
+  throwException = (e) ->
+    throwing = yes
+    if throwing
+      throw e
+
   fn = (what, value, message, exception_type, inverse, just_checking) ->
     exception = null
 
@@ -196,7 +201,7 @@ Ensure = (->
         false
       else
         exception.message = "#{message_func()}\n#{Json fn.stack 5}"
-        throw exception
+        throwException exception
     else
       true
 
@@ -227,9 +232,9 @@ Ensure = (->
     if types.function.check message
       message = message()
     if types.non_empty_string.check message
-      throw new e "AssertException", "#{message}\n\n#{fn.stack 2}"
+      throwException new e "AssertException", "#{message}\n\n#{fn.stack 2}"
     else
-      throw new e "EnsureException"
+      throwException new e "EnsureException"
                 , "Error message needs to be a string or function: #{Json message}\n\n#{fn.stack 2}"
 
   fn.types = (type, obj) ->
@@ -257,7 +262,7 @@ Ensure = (->
         try
           check(v)
         catch exception
-          throw new e "TypeException"
+          throwException new e "TypeException"
                     , "#{Json v} is not: #{types[type].name}"
     types[type] = { name, check }
     true

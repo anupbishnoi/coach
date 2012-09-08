@@ -89,7 +89,7 @@ Template.look_in_selected.helpers
   any: ->
     Ensure.inside "Template.look_in_selected.any"
     { look_in_selected, search_for } = UserDetails()
-    if look_in_selected?[search_for]?
+    if look_in_selected?[search_for]?.length > 0
       (Find look_in_selected[search_for][0])?
 
   item: ->
@@ -103,16 +103,15 @@ Template.look_in_options.helpers
   any: ->
     Ensure.inside "Template.look_in_options.any"
     { look_in_selected, look_in_order, search_for } = UserDetails()
-    if look_in_selected?[search_for]?.length and
-       look_in_order?[search_for]?.length and
-       look_in_order[search_for].length > look_in_selected[search_for].length
+    if look_in_order?[search_for]?.length > 0
       order = look_in_order[search_for]
       selected = look_in_selected[search_for]
-      (Find.one order[selected.length]
-       , Arr.objectify order
-         , selected
-         , "non_empty_string"
-      )?
+      if order.length > selected.length
+        (Find.one order[selected.length]
+         , Arr.objectify order
+           , selected
+           , "non_empty_string"
+        )?
 
   item: ->
     Ensure.inside "Template.look_in_options.item"

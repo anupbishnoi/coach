@@ -349,7 +349,7 @@ refreshDb = ->
                      "group" ]
         "study_class": [ "group" ]
       look_in_selected:
-        "student": [ "batch/vmc/12p2005" ]
+        "student": []
   madan_manager = Find "center_manager/vmc/pp/1"
 
   (Collection "vendor").insert
