@@ -339,6 +339,9 @@ refreshDb = ->
     doc_name: "Madan Bhaiya"
     person: madan_person.doc_id
     active: true
+    menu: [ "search"
+            "fee_collection"
+            "courier" ]
     can_search_for: [ "student"
                       "study_class"
                       "teacher"  ]
@@ -349,7 +352,7 @@ refreshDb = ->
                      "group" ]
         "study_class": [ "group" ]
       look_in_selected:
-        "student": []
+        "student": [ "batch/vmc/12p2005" ]
   madan_manager = Find "center_manager/vmc/pp/1"
 
   (Collection "vendor").insert
