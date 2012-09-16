@@ -309,12 +309,12 @@ Find = (->
     (Collection what).find(selector, options)
   
   fn.count = ->
-    [ index, what, selector, options, enforce_found, filters] =
+    [ index, what, selector, options, dont_care_about_active, filters] =
       checkSanityIn ".count", arguments
+    if dont_care_about_active
+      delete selector.active
     if filters.length > 0
-      docs = fn what, selector, options, enforce_found, filters
-      Ensure "true", docs.length > 0 or not enforce_found
-      , -> "No #{what} document was found for given selector"
+      docs = fn what, selector, options, false, filters
       docs.length
     else
       fn.cursor(what, selector, options).count()
@@ -356,7 +356,7 @@ Get = (->
       value_in_doc
     else if (its "non_empty_string", value_in_doc) and
             ("/" in value_in_doc)
-      deepValue path[1..]
+      Get (path[1..].join "/")
       , (memo[value_in_doc] or (memo[value_in_doc] = Find value_in_doc))
       , memo
     else
@@ -382,19 +382,13 @@ Get = (->
       mapped_obj = mapped_fields[doc.doc_type]
       v = mapped_obj[field](doc) if mapped_obj?[field]?
     if not v?
-      alternate_doc_type = alternate[doc.doc_type]
-      if alternate_doc_type
-        v = deepValue ([ alternate_doc_type ].concat field.split "/")
-            , doc
-            , memo
+      if field is "doc_name" and doc.id?
+        v = Str.printable doc.id
 
     if ensure_defined and not v?
       Ensure.error "Couldn't find '#{field}' of doc: #{Json doc}"
     v
 
-  fn.addAlternate = KeyValueAdder alternate
-                    , "non_empty_string"
-                    , "Get.addAlternate"
   fn.addField = KeyValueAdder mapped_fields
                 , "object"
                 , "Get.addField"

@@ -34,6 +34,7 @@ Collection.add  [
   "solution"
   "admission_test"
   "admission_test_attempt"
+  "batch_test_type"
   "batch_test"
   "batch_test_attempt"
   "group_test"
@@ -62,10 +63,10 @@ DocIdfy.addParent
   "topic":                     "subject"
   "study_material_type":       "org"
   "study_material":            [ "batch", "subject", "study_material_type" ]
+  "admission_test":            "batch"
   "batch_test_type":           "org"
   "batch_test":                [ "batch", "batch_test_type" ]
   "group_test":                [ "group", "subject" ]
-  "admission_test":            "batch"
   "center_head":               "center"
   "center_manager":            "center"
   "vendor":                    "org"
@@ -107,7 +108,9 @@ Find.addDefault [
 ], active: true
 
 Find.addSelectorFilter
-  "student":
+  rank_range: -> {}
+  subject: -> {}
+  student:
     "rank_range": (selector) ->
       [ selector ] = Match arguments, [ "object" ], 1
                      , "Find.addFilter#student#rank_range"
@@ -129,26 +132,10 @@ Find.addSelectorFilter
                 , true
         true if from <= marks <= to
 
-  "rank_range": -> {}
-  "subject": -> {}
-  
-
-Get.addAlternate [
-  "center_head"
-  "center_manager"
-  "vendor"
-  "center_staff"
-  "center_coordinator"
-  "teacher"
-  "student"
-], "person"
 
 Get.addField
-  "doc_type":
-    doc_name: (doc) -> Str.printable doc.id
-
-  "student":
-    due_installment: (doc) ->
+  student:
+    "due_installment": (doc) ->
       receipts = Find "student_receipt"
                  , student: doc.doc_id
       dues = Find "due_installment"
@@ -170,31 +157,33 @@ Get.addField
               (Arr.sum _.pluck receipts, "amount")
       due > 0 and due
 
-    last_paid_on: (doc) ->
+    "last_paid_on": (doc) ->
       receipt = Find.one "student_receipt"
                 , { student: doc.doc_id }
                 , { sort: on: 1 }
       (moment receipt.on).format("D MMM YYYY") if receipt?.on?
 
-  "study_class":
-    topic_and_id: (doc) ->
+  study_class:
+    "topic_and_id": (doc) ->
       name = Get "topic/doc_name"
              , doc
              , true
       "#{name} - #{doc.id}"
-    from_and_to: (doc) ->
+
+    "from_and_to": (doc) ->
       { from, to } = doc
       "#{(moment from).format("D MMM YYYY")}" +
         ", #{(moment from).format("h:mm A") } - #{(moment to).format("h:mm A")}"
-    subject_and_batch: (doc) ->
+
+    "subject_and_batch": (doc) ->
       "#{Get "subject/doc_name", doc, true}, #{Get "batch/doc_name", doc, true}"
 
 QueryFilter.addSearchable
   "student": [ "id"
-               "doc_name"
+               "person/doc_name"
                "email"
-               "phone"
-               "address"
+               "person/phone"
+               "person/address"
                "center/doc_name"
                "center/id"
                "org/doc_name"
@@ -213,24 +202,66 @@ QueryFilter.addSearchable
 DocMap.add
   "result_list/student/center_manager":
     identification:
-      main:         "doc_name"
-      secondary:    "id"
-      more:         [ "phone", "address" ]
+      main:           "person/doc_name"
+      secondary:      "id"
+      more:           [ "person/phone"
+                        "person/address" ]
     information:
-      "Center":      "center/doc_name"
-      "Group":       "group/doc_name"
-      "Due":         "due_installment"
-      "Last Paid":   "last_paid_on"
-    action:  [ "'pay_installment'" ]
+      "Group":        "group/doc_name"
+      "Due":          "due_installment"
+      "Last Paid":    "last_paid_on"
+    action: [
+      "'pay_installment'"
+    ]
 
   "result_list/study_class/center_manager":
     identification:
-      main:        "topic_and_id"
-      secondary:   "teacher/doc_name"
-      more:        [ "from_and_to", "subject_and_batch" ]
+      main:           "topic_and_id"
+      secondary:      "teacher/doc_name"
+      more:           [ "from_and_to"
+                        "subject_and_batch" ]
     information:
-      "Center":   "center/doc_name"
-      "Group":    "group/doc_name"
-      "Room":     "room/doc_name"
-    action:  [ "'nothing'" ]
+      "Group":        "group/doc_name"
+      "Room":         "room/doc_name"
+    action: [
+      "'nothing'"
+    ]
 
+  "result_list/student/center_head":
+    identification:
+      main:           "person/doc_name"
+      secondary:      "id"
+      more:           [ "batch/doc_name"
+                        "group/doc_name" ]
+    information:
+      "Next Class":   "next_class_on"
+      "Test Marks":   "marks_in_last_test"
+    action: [
+      "'nothing'"
+    ]
+
+    "result_list/batch_test/center_head":
+      identification:
+        main:         "doc_name"
+        secondary:    "held_on"
+        more:         [ "total_marks"
+                        "" ]
+      information:
+        "Topper":       "topper_with_marks"
+        "Most Between": "most_marks_between"
+      action: [
+        "'nothing'"
+      ]
+
+    "result_list/teacher/center_head":
+      identification:
+        main:         "person/doc_name"
+        secondary:    "current_topics"
+        more:         [ "person/phone"
+                        "classes_this_week" ]
+      information:
+        "Next Class": "next_class_on"
+        "Entry":      "last_entry_time"
+      action: [
+        "'nothing'"
+      ]

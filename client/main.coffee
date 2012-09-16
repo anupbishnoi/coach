@@ -15,9 +15,10 @@ Meteor.subscribe name, subscriptions_onComplete for name in Collection.list()
 Meteor.session = Session
 Session = (->
   types =
-    look_in_editing: "boolean"
-    search_query: "string"
-    user_details: "object"
+    look_in_editing:  "boolean"
+    search_query:     "string"
+    user_details:     "object"
+    user_name:        "string"
 
   _.each types, (type, name) ->
     Ensure.types "session_#{name}"
@@ -51,6 +52,7 @@ Session = (->
 Session "look_in_editing", no
 Session "search_query", ""
 Session "user_details", {}
+Session "user_name", "Madan Lal"
 
 # User
 UserDetails = (->
@@ -59,7 +61,7 @@ UserDetails = (->
     return user_details if not _.isEmpty user_details
 
     return {} if not all_subscriptions_loaded
-    user_doc = Find "person/9"
+    user_doc = Find.one "person", doc_name: Session "user_name"
     view_as = Get "role.0", user_doc, true
     role_doc = Find view_as, true
     view_as_type = Str.uptilFirst "/", view_as
