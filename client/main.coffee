@@ -74,7 +74,7 @@ UserDetails = (->
 
     ui_options = Get "ui", role_doc
     if its.not "object", ui_options
-      ui_options ?= {}
+      ui_options = {}
       Update role_doc
       , "ui": ui_options
     search_for = Get "ui.search_for", role_doc
@@ -98,11 +98,15 @@ UserDetails = (->
     if not order?
       ui_options.look_in_order[search_for] = order = [ "batch", "group" ]
 
+    visualize_mode = Get "ui.visualize_mode", role_doc
+    if not visualize_mode?
+      ui_options.visualize_mode = visualize_mode = false
+
     Update role_doc
     , $set: "ui": ui_options
 
     user_details = { user_doc, view_as, view_as_type, role_doc, search_for
-                     search_for_list, look_in_selected, look_in_order }
+                     search_for_list, look_in_selected, look_in_order, visualize_mode }
     Session "user_details", user_details
     user_details
 

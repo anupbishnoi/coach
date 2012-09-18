@@ -1,13 +1,21 @@
-Template.search_input.helpers
+Template.search_bar.helpers
   placeholder: ->
-    Ensure.inside "Template.search_input.placeholder"
+    Ensure.inside "Template.search_bar.placeholder"
     { search_for } = UserDetails()
     Str.printable search_for
+  ui_records_mode: ->
+    Ensure.inside "Template.search_bar.ui_records_mode"
+    { visualize_mode } = UserDetails()
+    "active" if visualize_mode is false
+  ui_visualize_mode: ->
+    Ensure.inside "Template.search_bar.ui_visualize_mode"
+    { visualize_mode } = UserDetails()
+    "active" if visualize_mode is true
 
 
-Template.result_list.helpers
+Template.result_view.helpers
   any: ->
-    Ensure.inside "Template.result_list.any"
+    Ensure.inside "Template.result_view.any"
 
     { search_for, look_in_selected, look_in_order } = UserDetails()
     search_query = (Session "search_query") or ""
@@ -17,8 +25,12 @@ Template.result_list.helpers
                  , "non_empty_string"
       (Find.one search_for, selector, QueryFilter search_query)?
 
+  visualize_mode: ->
+    { visualize_mode } = UserDetails()
+    visualize_mode
+
   item: ->
-    { view_as_type, search_for, look_in_selected, look_in_order } = UserDetails()
+    { view_as_type, search_for, look_in_selected , look_in_order } = UserDetails()
     search_query = (Session "search_query") or ""
     selector = Arr.objectify look_in_order[search_for]
                , look_in_selected[search_for]
@@ -41,10 +53,13 @@ Template.result_list.helpers
                   item
       doc.identification.more = arr
       doc
-    DocMap "result_list/#{search_for}/#{view_as_type}"
+    DocMap "result_view/record/#{search_for}/#{view_as_type}"
     , docs
     , breakApartInformation
     , stringifyArrays
+
+
+Template.visualization.created = ->
 
 
 Template.search_for.helpers

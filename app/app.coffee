@@ -200,7 +200,7 @@ QueryFilter.addSearchable
                    "room/doc_name" ]
 
 DocMap.add
-  "result_list/student/center_manager":
+  "result_view/record/student/center_manager":
     identification:
       main:           "person/doc_name"
       secondary:      "id"
@@ -214,7 +214,7 @@ DocMap.add
       "'pay_installment'"
     ]
 
-  "result_list/study_class/center_manager":
+  "result_view/record/study_class/center_manager":
     identification:
       main:           "topic_and_id"
       secondary:      "teacher/doc_name"
@@ -227,7 +227,7 @@ DocMap.add
       "'nothing'"
     ]
 
-  "result_list/student/center_head":
+  "result_view/record/student/center_head":
     identification:
       main:           "person/doc_name"
       secondary:      "id"
@@ -240,7 +240,7 @@ DocMap.add
       "'nothing'"
     ]
 
-    "result_list/batch_test/center_head":
+    "result_view/record/batch_test/center_head":
       identification:
         main:         "doc_name"
         secondary:    "held_on"
@@ -253,7 +253,7 @@ DocMap.add
         "'nothing'"
       ]
 
-    "result_list/teacher/center_head":
+    "result_view/record/teacher/center_head":
       identification:
         main:         "person/doc_name"
         secondary:    "current_topics"

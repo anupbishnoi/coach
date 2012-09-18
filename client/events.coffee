@@ -26,7 +26,7 @@ Template.look_in_options.events
     UserDetails.reset()
     false
 
-Template.search_input.events
+Template.search_bar.events
   "keypress #search_input": (e) ->
     switch e.which
       when 13, 32# , 8, 20, 40, 46 # Enter/Space/Backspace/Delete
@@ -39,6 +39,22 @@ Template.search_input.events
           true
       else
         true
+  "click #view_records_mode": ->
+    { visualize_mode, role_doc } = UserDetails()
+    if visualize_mode
+      visualize_mode = false
+      Update role_doc
+      , $set: "ui.visualize_mode": visualize_mode
+      UserDetails.reset()
+    false
+  "click #view_visualize_mode": ->
+    { visualize_mode, role_doc } = UserDetails()
+    if not visualize_mode
+      visualize_mode = true
+      Update role_doc
+      , $set: "ui.visualize_mode": visualize_mode
+      UserDetails.reset()
+    false
 
 Template.search_for.events
   "click .item": ->

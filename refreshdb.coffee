@@ -180,7 +180,7 @@ refreshDb = ->
   for obj in ts1_total_12p
     for own k of obj
       obj[k] = Str.clean obj[k]
-    obj["name"] = Str.titleize obj["name"].toLowerCase()
+    obj["name"] = Str.printable obj["name"]
 
   for obj in ts1_total_12p
     student_doc = Find.one "student", org: "vmc", id: obj["rollno"]
@@ -255,7 +255,7 @@ refreshDb = ->
       org: "org/vmc"
 
   Session "user_name", "Sandeep Mehta"
-  Session "user_details", {}
+  UserDetails.reset()
 
 dummyDb = ->
   Log "Resetting Collections:"
@@ -615,6 +615,7 @@ dummyDb = ->
         "study_class": [ "group" ]
       look_in_selected:
         "student": [ "batch/vmc/12p2005" ]
+      visualize_mode: true
   madan_manager = Find "center_manager/vmc/pitampura/1"
 
   (Collection "vendor").insert

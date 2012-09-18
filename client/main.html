@@ -3,122 +3,102 @@
 </head>
 
 <body>
-  {{> top_bar}}
-  {{> main}}
+  <div class="container">
+    {{> top_bar}}
+    {{> main}}
+  </div>
 </body>
 
 <template name="main">
-  <div class="container" id="main">
-    <div class="row">
-      <div class="span2">
-        {{> look_in}}
-      </div>
-      <div class="span8">
-        <div class="well" id="search_bar">
-          <div class="row">
-            <div class="input-prepend input-append span7">
-              {{> filter_menu}}
-              {{> search_input}}
-              {{> save_button}}
-            </div>
-            <div class="">
-              {{> save_as_menu}}
-            </div>
-          </div>
-        </div>
-        {{> result_list}}
-      </div>
-      <div class="span2">
-        {{> search_for}}
-      </div>
+  <div id="main" class="row-fluid">
+    <div class="span2">
+      {{> look_in}}
+    </div>
+    <div class="span8">
+      {{> search_bar}}
+      {{> result_view}}
+    </div>
+    <div class="span2">
+      {{> search_for}}
     </div>
   </div>
 </template>
 
-<template name="save_button">
-  <span class="btn btn-small btn-info">
-    <i class="icon-plus-sign"></i>
-  </span>
+<template name="visualization">
+  <div id="visualization">
+  </div>
 </template>
 
-<template name="result_list">
+<template name="result_view">
+  <div id="result_view">
   {{#if any}}
-  <table id="result_list" class="table">
-    <tbody>
+    {{#if visualize_mode}}
+      {{> visualization}}
+    {{else}}
       {{#each item}}
-      <tr class="">
-        <td>
+      <div class="row-fluid record_mode_item">
+        <div class="span5 identification">
+          {{#with identification}}
+          <h3>{{main}}</h3>
+          <h4>{{secondary}}</h4><br/>
+          {{#each more}}
+          <h6>{{this}}</h6>
+          {{/each}}
+          {{/with}}
+        </div>
+        <div class="span3 information">
+          <table class="table table-condensed">
+            <tbody>
+              {{#each information}}
+              <tr>
+                <td class="field">{{field}}</td>
+                <td class="value">{{value}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        <div class="span4 actions">
+          {{#each action}}
           <div>
-            <div class="pull-right span3 actions">
-              {{#each action}}
-              <div>
-                <a class="btn btn-small" href="#">
-                  {{this}}
-                </a>
-              </div>
-              {{/each}}
-            </div>
-            <div class="pull-right span3 information">
-              <table class="table table-condensed table-striped">
-                <tbody>
-                  {{#each information}}
-                  <tr>
-                    <td class="field">{{field}}</td>
-                    <td class="value">{{value}}</td>
-                  </tr>
-                  {{/each}}
-                </tbody>
-              </table>
-            </div>
-            <div class="span4 identification">
-              {{#with identification}}
-              <h3>{{main}}</h3>
-              <h4>{{secondary}}</h4><br/>
-              {{#each more}}
-              <h6>{{this}}</h6>
-              {{/each}}
-              {{/with}}
-            </div>
+            <a class="btn btn-small" href="#">
+              {{this}}
+            </a>
           </div>
-        </td>
-      </tr>
+          {{/each}}
+        </div>
+      </div>
       {{/each}}
-    </tbody>
-  </table>
+    {{/if}}
   {{/if}}
+  </div>
 </template>
 
 <template name="top_bar">
-  <div class="navbar navbar-fixed-top">
+  <div id="top_bar" class="navbar navbar-inverse">
     <div class="navbar-inner">
-      <div class="container">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
-        <a class="brand" href="/home" title="Vidyamandir Classes">Vidyamandir</a>
-        <div class="nav-collapse">
-          <ul class="nav navigation-menu">
-            <li class="active">
-              <a href="#">Search</a>
-            </li>
-            <li><a href="#">Fee Collections</a></li>
-            <li><a href="#">Couriers</a></li>
-          </ul>
-          {{> login_form}}
-        </div>
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="#" title="Vidyamandir Classes">Vidyamandir</a>
+      <div class="nav-collapse">
+        <ul class="nav navigation-menu">
+          <li class="active">
+            <a href="#">Search</a>
+          </li>
+          <li><a href="#">Fee Collections</a></li>
+          <li><a href="#">Couriers</a></li>
+        </ul>
+        <form action="/login" class="navbar-form form-inline pull-right">
+          <input type="text" class="input-small user" placeholder="User">
+          <input type="password" class="input-small pass" placeholder="Password">
+          <input type="submit" class="btn btn-info submit" value="Login">
+        </form>
       </div>
     </div>
   </div>
-</template>
-
-<template name="login_form">
-  <form action="/login" class="navbar-form pull-right">
-    <input type="text" class="span2" placeholder="User">
-    <input type="password" class="span2" placeholder="Password">
-    <input type="submit" class="btn btn-info" value="Login">
-  </form>
 </template>
 
 <template name="search_for">
@@ -140,12 +120,12 @@
 <template name="look_in">
   <div id="look_in" class="">
     {{#if editing}}
-    <a class="btn btn-mini btn-primary edit_ok_button">
+    <a class="btn btn-mini btn-primary edit_ok_button pull-right">
       <i class="icon-ok"></i>
     </a>
     {{else}}
-    <a class="btn btn-mini edit_button">
-      <i class="icon-edit"></i>
+    <a class="btn btn-mini edit_button pull-right">
+      <i class="icon-pencil"></i>
     </a>
     {{/if}}
     <h3>Look in</h3>
@@ -203,8 +183,35 @@
   {{/if}}
 </template>
 
-<template name="search_input">
-  <input id="search_input" class="span6" type="text" placeholder="{{placeholder}}">
+<template name="search_bar">
+  <div class="row-fluid">
+    <div class="span1"></div>
+    <div class="span10" id="search_bar">
+      <input id="search_input" class="search-query" type="text" placeholder="{{placeholder}}">
+      <div class="dropdown" id="save_as_menu">
+        <a class="btn btn-small btn-warning dropdown-toggle" data-toggle="dropdown" data-target="#save_as_menu">
+          <i class="icon-share"></i>
+        </a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+          <li><a tabindex="-1" href="#">Excel</a></li>
+          <li><a tabindex="-1" href="#">PDF</a></li>
+          <li class="divider"></li>
+          <li><a tabindex="-1" href="#">More</a></li>
+        </ul>
+      </div>
+      <div id="view_mode" class="btn-toolbar">
+        <div class="btn-group">
+          <div id="view_records_mode" class="btn btn-small view_mode_button {{ui_records_mode}}">
+            <i class="icon-list"></i> Records
+          </div>
+          <div id="view_visualize_mode" class="btn btn-small view_mode_button {{ui_visualize_mode}}">
+            <i class="icon-picture"></i> Visualize
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="span1"></div>
+  </div>
 </template>
 
 <template name="filter_menu">
@@ -218,20 +225,6 @@
       <li><a>Inactive Students</a></li>
       <li class="divider"></li>
       <li><a>More</a></li>
-    </ul>
-  </span>
-</template>
-
-<template name="save_as_menu">
-  <span class="dropdown pull-right" id="save_as_menu">
-    <a class="btn btn-small btn-warning dropdown-toggle" data-toggle="dropdown" data-target="#save_as_menu">
-      <i class="icon-share"></i>
-    </a>
-    <ul class="dropdown-menu">
-      <li><a>Excel</a></li>
-      <li><a>PDF</a></li>
-      <li class="divider"></li>
-      <li><a href="#">More</a></li>
     </ul>
   </span>
 </template>

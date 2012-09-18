@@ -242,12 +242,12 @@ Ensure = (->
     , -> "Type name needs to be a non-empty string: #{Json type}"
     if fn.test "function", obj
       obj =
-        name: (Str.titleize Str.humanize type)
+        name: (Str.printable type)
         check: obj
     else
       fn "object", obj
       , -> "No valid type definition specified for: #{type}"
-      obj.name ?= (Str.titleize Str.humanize type)
+      obj.name ?= (Str.printable type)
       fn "non_empty_string", obj.name
       , -> "Type name needs to be a non-empty string: #{obj.name}"
       fn "function", obj.check
